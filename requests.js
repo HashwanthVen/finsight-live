@@ -195,13 +195,61 @@
   }
 
   /* ---------- MAIN ACTIONS ---------- */
-  async function submitRequest() {
+  // PRIMARY SUBMIT: opens the prefilled GitHub new-issue page in a new tab.
+  // The audience clicks "Submit new issue" on GitHub to land it.
+  // Also saves to local queue as a backup.
+  function submitToGitHub() {
     const form = readForm();
     const err = validate(form);
     if (err) { setError(err); return; }
     setError("");
 
-    // Always save to local queue first so nothing is lost
+    if (!ownerRepoConfigured()) {
+      flash("GITHUB_OWNER/REPO not configured — saved locally instead.", "err");
+      saveLocalInternal(form);
+      return;
+    }
+    // Save to local queue as a backup so nothing is lost
+    saveLocalInternal(form, /*silent*/ true);
+
+    const url = buildIssueUrl(form);
+    // Open in a new tab so the form stays put for the next person
+    window.open(url, "_blank", "noopener");
+    flash("↗ OPENED GITHUB · CLICK \"SUBMIT NEW ISSUE\" THERE TO POST", "good", 4000);
+    clearForm();
+    renderQueue();
+  }
+
+  // Secondary: presenter one-tap auto-create via API (uses saved PAT).
+  async function autoCreateViaApi() {
+    const form = readForm();
+    const err = validate(form);
+    if (err) { setError(err); return; }
+    setError("");
+
+    if (!getToken() || !ownerRepoConfigured()) {
+      flash("Auto-create needs a PAT in PRESENTER settings.", "err");
+      return;
+    }
+    // Save locally first
+    const entry = saveLocalInternal(form, /*silent*/ true);
+    try {
+      const issue = await createIssueViaApi(form);
+      entry.githubIssue = { number: issue.number, html_url: issue.html_url };
+      entry.status = "On GitHub";
+      const queue = loadQueue();
+      const i = queue.findIndex((x) => x.id === entry.id);
+      if (i !== -1) { queue[i] = entry; saveQueue(queue); }
+      flash(`✓ ISSUE #${issue.number} CREATED · ${issue.html_url}`, "good", 4500);
+      clearForm();
+      renderQueue();
+    } catch (e) {
+      flash(`✗ AUTO-CREATE FAILED — saved locally. ${e.message}`, "err", 5500);
+      renderQueue();
+    }
+  }
+
+  function saveLocalInternal(form, silent) {
     const queue = loadQueue();
     const entry = {
       id: "req-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
@@ -212,29 +260,12 @@
     };
     queue.unshift(entry);
     saveQueue(queue);
-
-    if (getToken() && ownerRepoConfigured()) {
-      // Try auto-create via API
-      try {
-        const issue = await createIssueViaApi(form);
-        entry.githubIssue = { number: issue.number, html_url: issue.html_url };
-        entry.status = "On GitHub";
-        const q2 = loadQueue();
-        const i = q2.findIndex((x) => x.id === entry.id);
-        if (i !== -1) { q2[i] = entry; saveQueue(q2); }
-        flash(`✓ ISSUE #${issue.number} CREATED · ${issue.html_url}`, "good", 4500);
-        clearForm();
-        renderQueue();
-        return;
-      } catch (e) {
-        flash(`✗ AUTO-CREATE FAILED — saved locally. ${e.message}`, "err", 5500);
-        // fall through to local-only flow
-      }
-    } else {
-      flash("✓ SAVED LOCALLY — connect a token to auto-create on GitHub.", "good");
+    if (!silent) {
+      flash("✓ SAVED LOCALLY");
+      clearForm();
+      renderQueue();
     }
-    clearForm();
-    renderQueue();
+    return entry;
   }
 
   function saveLocal() {
@@ -242,41 +273,12 @@
     const err = validate(form);
     if (err) { setError(err); return; }
     setError("");
-    const queue = loadQueue();
-    queue.unshift({
-      id: "req-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-      ...form,
-      status: "New",
-      createdAt: new Date().toISOString(),
-      githubIssue: null
-    });
-    saveQueue(queue);
-    flash("✓ SAVED LOCALLY");
-    clearForm();
-    renderQueue();
+    saveLocalInternal(form);
   }
 
   function generateIssue() {
-    const form = readForm();
-    const err = validate(form);
-    if (err) { setError(err); return; }
-    setError("");
-    const body = buildIssueBody(form);
-    const title = buildIssueTitle(form);
-    $("issue-body").value = `Title: ${title}\n\n${body}`;
-    $("issue-output").classList.add("visible");
-
-    const wrap = $("issue-link-wrap");
-    if (ownerRepoConfigured()) {
-      const url = buildIssueUrl(form);
-      $("issue-hint").textContent =
-        `Repo: ${GITHUB_OWNER}/${GITHUB_REPO}. Opens GitHub's new-issue form pre-filled (requires GitHub login).`;
-      wrap.innerHTML = `<a class="btn primary" target="_blank" rel="noopener" href="${escapeAttr(url)}">↗ OPEN ON GITHUB</a>`;
-    } else {
-      $("issue-hint").textContent =
-        `GITHUB_OWNER / GITHUB_REPO not configured. Copy the body below and paste it into a new GitHub issue.`;
-      wrap.innerHTML = "";
-    }
+    // Kept for backwards compatibility — same as primary submit.
+    submitToGitHub();
   }
 
   function updateMailto() {
@@ -438,28 +440,28 @@
     const has = !!getToken();
     const cfg = ownerRepoConfigured();
     const statusEl = $("token-status");
+    const autoBtn = $("btn-autocreate");
     if (has && cfg) {
       statusEl.textContent = "CONNECTED";
       statusEl.className = "status connected";
+      if (autoBtn) autoBtn.style.display = "";
     } else {
       statusEl.textContent = "DISCONNECTED";
       statusEl.className = "status disconnected";
+      if (autoBtn) autoBtn.style.display = "none";
     }
     // Top mode banner
     const banner = $("mode-banner");
-    if (has && cfg) {
-      banner.innerHTML = `<div class="notice good">⚡ <b>AUTO-CREATE ON</b> · Submissions are posted directly to <code>${GITHUB_OWNER}/${GITHUB_REPO}</code> as GitHub issues. Audience needs no GitHub account.</div>`;
-    } else if (cfg) {
-      banner.innerHTML = `<div class="notice warn">○ <b>LOCAL ONLY</b> · Submissions are saved in this browser. Audience can also use <b>✉ EMAIL</b> or the <b>↗ OPEN ON GITHUB</b> link (requires GitHub login). Presenter: open the settings panel below to enable auto-create.</div>`;
+    if (!cfg) {
+      banner.innerHTML = `<div class="notice err">GITHUB_OWNER / GITHUB_REPO not configured in <code>requests.js</code>.</div>`;
+    } else if (has) {
+      banner.innerHTML = `<div class="notice good">⚡ <b>PRESENTER MODE</b> · You can use <b>⚡ AUTO-CREATE</b> for one-tap, no-redirect submissions. Audience using <b>▶ SUBMIT TO GITHUB</b> will be taken to GitHub to confirm.</div>`;
     } else {
-      banner.innerHTML = `<div class="notice err">GITHUB_OWNER / GITHUB_REPO not configured in <code>requests.js</code>. Auto-create disabled.</div>`;
+      banner.innerHTML = `<div class="notice">Click <b class="amber">▶ SUBMIT TO GITHUB</b> to open the prefilled issue page on GitHub — just click <b>"Submit new issue"</b> there. Repo: <code>${GITHUB_OWNER}/${GITHUB_REPO}</code>.</div>`;
     }
     // Status bar
-    setText("bar-mode", (has && cfg) ? "AUTO-CREATE" : "LOCAL ONLY");
+    setText("bar-mode", (has && cfg) ? "PRESENTER · AUTO" : "PUBLIC · GH FORM");
     setText("bar-repo", cfg ? `${GITHUB_OWNER}/${GITHUB_REPO}` : "--");
-    // Open settings automatically if not connected, so presenter sees it
-    const panel = $("token-panel");
-    if (!has && cfg && panel) panel.open = true;
   }
 
   function bindTokenUi() {
@@ -514,11 +516,11 @@
   document.addEventListener("DOMContentLoaded", () => {
     tickClock(); setInterval(tickClock, 1000);
 
-    $("btn-submit").addEventListener("click", submitRequest);
+    $("btn-submit").addEventListener("click", submitToGitHub);
+    const ac = $("btn-autocreate"); if (ac) ac.addEventListener("click", autoCreateViaApi);
     $("btn-save").addEventListener("click", saveLocal);
-    $("btn-issue").addEventListener("click", generateIssue);
     $("btn-clear").addEventListener("click", clearForm);
-    $("btn-copy-body").addEventListener("click", () => copyText($("issue-body").value));
+    const cpy = $("btn-copy-body"); if (cpy) cpy.addEventListener("click", () => copyText($("issue-body").value));
     $("btn-clear-queue").addEventListener("click", clearQueue);
     $("btn-sync-all").addEventListener("click", pushAllToGitHub);
 

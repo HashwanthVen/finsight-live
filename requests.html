@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FINSIGHT LIVE · REQUEST CENTER</title>
   <meta name="description" content="Submit feature ideas or bug reports for the FinSight Live demo." />
-  <link rel="stylesheet" href="styles.css?v=0.2.0" />
+  <link rel="stylesheet" href="styles.css?v=0.3.0" />
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to main content</a>
@@ -31,7 +31,7 @@
 
   <div class="page-head">
     <h2>REQUEST CENTER</h2>
-    <p>Submit feature ideas or issues for the live agent demo. One-tap submit on mobile when presenter token mode is connected.</p>
+    <p>Fill in the form below and click <b class="amber">▶ SUBMIT TO GITHUB</b> — you'll be taken to GitHub with everything pre-filled. Just click <b>"Submit new issue"</b>. Requires a GitHub account (free).</p>
   </div>
 
   <main id="main" class="page-wrap">
@@ -143,9 +143,9 @@
           <div class="error-msg" id="form-error" role="alert" aria-live="polite"></div>
 
           <div class="form-actions">
-            <button type="button" class="btn primary" id="btn-submit">▶ SUBMIT</button>
+            <button type="button" class="btn primary" id="btn-submit">▶ SUBMIT TO GITHUB</button>
+            <button type="button" class="btn" id="btn-autocreate" style="display:none;">⚡ AUTO-CREATE (NO REDIRECT)</button>
             <button type="button" class="btn" id="btn-save">💾 SAVE LOCAL</button>
-            <button type="button" class="btn" id="btn-issue">🔗 ISSUE LINK</button>
             <a class="btn" id="btn-mailto" href="#" aria-label="Email this request to the presenter">✉ EMAIL</a>
             <button type="button" class="btn" id="btn-clear">CLEAR</button>
           </div>
@@ -187,6 +187,6 @@
     <span class="seg right"><span class="l">SYS</span> <span id="clock2">--:--:--</span></span>
   </div>
 
-  <script src="requests.js?v=0.2.0"></script>
+  <script src="requests.js?v=0.3.0"></script>
 </body>
 </html>
