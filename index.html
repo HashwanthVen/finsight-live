@@ -3,108 +3,135 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>FinSight Live — Executive Finance Dashboard</title>
-  <meta name="description" content="FinSight Live — executive finance dashboard for live AI-assisted feature demos. Synthetic data only." />
-  <link rel="stylesheet" href="styles.css?v=0.1.0" />
+  <title>FINSIGHT LIVE · TERMINAL</title>
+  <meta name="description" content="FinSight Live — Bloomberg-style executive terminal for live AI-assisted feature demos. Synthetic data only." />
+  <link rel="stylesheet" href="styles.css?v=0.2.0" />
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to main content</a>
 
-  <header class="topbar" role="banner">
+  <!-- TICKER TAPE -->
+  <div class="ticker" aria-label="Ticker tape">
+    <div class="ticker-track" id="ticker-track"></div>
+  </div>
+
+  <!-- TOP BAR -->
+  <div class="terminal-bar" role="banner">
     <div class="brand">
-      <div class="logo" aria-hidden="true">◆</div>
-      <div class="brand-text">
-        <h1>FinSight Live</h1>
-        <p>Executive finance dashboard for live AI-assisted feature demos</p>
-      </div>
+      <span class="dot" aria-hidden="true"></span>
+      <span>FINSIGHT&nbsp;LIVE</span>
+      <span class="sub">EXEC FINANCE TERMINAL · FY26</span>
     </div>
-    <nav class="topnav" aria-label="Primary">
-      <a href="#dashboard" class="navlink active">Dashboard</a>
-      <a href="#insights" class="navlink">Insights</a>
-      <a href="#risks" class="navlink">Risks</a>
-      <a href="requests.html" class="navlink">Requests</a>
-    </nav>
-    <a class="btn btn-primary" href="requests.html" aria-label="Submit a feature request or bug report">+ Submit Request</a>
-  </header>
+    <div class="clock"><span class="lbl">SYS</span><span id="clock">--:--:--</span></div>
+  </div>
+
+  <!-- FUNCTION KEYS -->
+  <nav class="fkeys" aria-label="Function keys">
+    <a class="fkey active" href="#dashboard"><span class="k">F1</span> DASH</a>
+    <a class="fkey" href="#kpis"><span class="k">F2</span> KPIS</a>
+    <a class="fkey" href="#trend"><span class="k">F3</span> TREND</a>
+    <a class="fkey" href="#regions"><span class="k">F4</span> RGNS</a>
+    <a class="fkey" href="#products"><span class="k">F5</span> PROD</a>
+    <a class="fkey" href="#risks"><span class="k">F6</span> RISK</a>
+    <a class="fkey" href="#insights"><span class="k">F7</span> INSI</a>
+    <a class="fkey" href="#release"><span class="k">F8</span> NOTE</a>
+    <a class="fkey primary" href="requests.html"><span class="k">F9</span> REQS</a>
+  </nav>
+
+  <!-- COMMAND BAR -->
+  <div class="cmd-bar">
+    <span class="prompt">FINS&gt;</span>
+    <input id="cmd" type="text" placeholder="enter command (HELP / GO REGIONS / GO RISKS / GO REQUESTS / TREND MARGIN)" aria-label="Command input" />
+    <span class="cursor" aria-hidden="true"></span>
+    <span class="hint">Type HELP and press Enter</span>
+  </div>
 
   <main id="main">
-    <!-- HERO -->
+
+    <!-- HERO STRIP -->
     <section class="hero" aria-labelledby="hero-title">
-      <div class="hero-card">
-        <span class="eyebrow">Executive Summary · FY26</span>
-        <h2 id="hero-title">Performance tracking above baseline with regional variance and margin pressure in select segments.</h2>
-        <div class="chips">
-          <span class="chip chip-good">▲ Revenue above plan</span>
-          <span class="chip chip-warn">● Margin watch</span>
-          <span class="chip chip-info">↗ Forecast improving</span>
-        </div>
+      <span class="label">EXEC SUMMARY · JUN FY26</span>
+      <div class="summary" id="hero-title">
+        Performance tracking <span class="green">above baseline</span> · regional variance & margin pressure in select segments.
       </div>
-      <div class="hero-side">
-        <div class="hero-meta">
-          <div><span class="meta-label">Period</span><span class="meta-value">Jun · FY26</span></div>
-          <div><span class="meta-label">Currency</span><span class="meta-value">USD</span></div>
-          <div><span class="meta-label">Data</span><span class="meta-value">Synthetic</span></div>
-        </div>
+      <div class="chips">
+        <span class="chip good">▲ REV ABOVE PLAN</span>
+        <span class="chip warn">● MARGIN WATCH</span>
+        <span class="chip info">↗ FCST IMPROVING</span>
       </div>
     </section>
 
-    <!-- KPI CARDS -->
-    <section id="dashboard" class="section" aria-labelledby="kpi-title">
-      <div class="section-head">
-        <h3 id="kpi-title">Key Performance Indicators</h3>
-        <p class="muted">Snapshot of headline metrics for current period.</p>
+    <!-- KPI DESK -->
+    <section id="dashboard" class="panel" aria-labelledby="kpi-title">
+      <div class="panel-head">
+        <span class="title" id="kpi-title">KPI DESK</span>
+        <span class="sub">SNAPSHOT · 6 METRICS</span>
+        <span class="right muted" id="kpi-stamp"></span>
       </div>
-      <div class="kpi-grid" id="kpi-grid" aria-live="polite"></div>
+      <div id="kpi-grid" class="kpi-grid" aria-live="polite"></div>
     </section>
 
-    <!-- REVENUE TREND -->
-    <section class="section" aria-labelledby="trend-title">
-      <div class="section-head row">
-        <div>
-          <h3 id="trend-title">Monthly Trend</h3>
-          <p class="muted">Toggle between key series. Mock data, FY26 H1.</p>
+    <!-- TREND + AI INSIGHTS side by side on desktop -->
+    <div class="row-grid cols-2">
+      <section id="trend" class="panel" aria-labelledby="trend-title">
+        <div class="panel-head">
+          <span class="title" id="trend-title">TREND MONITOR</span>
+          <span class="sub">FY26 H1 · MOCK</span>
+          <div class="right">
+            <div class="toggle-group" role="tablist" aria-label="Series">
+              <button class="toggle active" role="tab" aria-selected="true"  data-series="revenue">REV</button>
+              <button class="toggle"        role="tab" aria-selected="false" data-series="margin">MGN</button>
+              <button class="toggle"        role="tab" aria-selected="false" data-series="pipeline">PIPE</button>
+            </div>
+          </div>
         </div>
-        <div class="toggle-group" role="tablist" aria-label="Chart series">
-          <button class="toggle active" role="tab" aria-selected="true" data-series="revenue">Revenue</button>
-          <button class="toggle" role="tab" aria-selected="false" data-series="margin">Margin</button>
-          <button class="toggle" role="tab" aria-selected="false" data-series="pipeline">Pipeline</button>
+        <div class="panel-body tight">
+          <div class="chart-wrap">
+            <div class="chart-stat" id="chart-stat"></div>
+            <svg class="chart-svg" id="chart-svg" viewBox="0 0 600 240" preserveAspectRatio="none" role="img" aria-label="Trend chart"></svg>
+          </div>
         </div>
-      </div>
-      <div class="card chart-card">
-        <div id="chart" class="chart" role="img" aria-label="Monthly trend chart"></div>
-        <div class="chart-axis" id="chart-axis"></div>
-      </div>
-    </section>
+      </section>
 
-    <!-- REGIONAL TABLE -->
-    <section class="section" aria-labelledby="region-title">
-      <div class="section-head row">
-        <div>
-          <h3 id="region-title">Regional Performance</h3>
-          <p class="muted">Filter and search across regions.</p>
+      <section id="insights" class="panel" aria-labelledby="ins-title">
+        <div class="panel-head">
+          <span class="title" id="ins-title">AI INSIGHTS</span>
+          <span class="sub">SYNTHESIZED · MOCK</span>
+          <div class="right">
+            <button class="btn sm" id="regen-insight">↻ ROTATE</button>
+          </div>
         </div>
-        <div class="controls">
-          <label class="sr-only" for="region-search">Search region</label>
-          <input id="region-search" class="input" type="search" placeholder="Search region…" />
-          <label class="sr-only" for="region-status">Filter by status</label>
-          <select id="region-status" class="input">
-            <option value="all">All statuses</option>
-            <option value="On Track">On Track</option>
-            <option value="Watch">Watch</option>
-            <option value="At Risk">At Risk</option>
+        <div class="panel-body">
+          <ul class="insight-list" id="insight-list"></ul>
+        </div>
+      </section>
+    </div>
+
+    <!-- REGIONS -->
+    <section id="regions" class="panel" aria-labelledby="reg-title">
+      <div class="panel-head">
+        <span class="title" id="reg-title">REGIONAL DESK</span>
+        <span class="sub">5 REGIONS · FILTERABLE</span>
+        <div class="right controls">
+          <input id="region-search" class="input" type="search" placeholder="SEARCH REGION" aria-label="Search region" />
+          <select id="region-status" class="input" aria-label="Filter by status">
+            <option value="all">ALL STATUSES</option>
+            <option value="On Track">ON TRACK</option>
+            <option value="Watch">WATCH</option>
+            <option value="At Risk">AT RISK</option>
           </select>
         </div>
       </div>
-      <div class="card table-card">
-        <table class="data-table" aria-describedby="region-title">
+      <div class="panel-body tight">
+        <table class="data-table">
           <thead>
             <tr>
-              <th scope="col">Region</th>
-              <th scope="col">Revenue</th>
-              <th scope="col">Growth</th>
-              <th scope="col">Margin</th>
-              <th scope="col">Forecast</th>
-              <th scope="col">Status</th>
+              <th>REGION</th>
+              <th class="num">REV</th>
+              <th class="num">GROWTH</th>
+              <th class="num">MGN</th>
+              <th class="num">FCST</th>
+              <th>STATUS</th>
             </tr>
           </thead>
           <tbody id="region-tbody"></tbody>
@@ -112,60 +139,56 @@
       </div>
     </section>
 
-    <!-- PRODUCT CARDS -->
-    <section class="section" aria-labelledby="prod-title">
-      <div class="section-head">
-        <h3 id="prod-title">Product Performance</h3>
-        <p class="muted">Adoption and growth across product lines.</p>
-      </div>
-      <div class="product-grid" id="product-grid"></div>
-    </section>
-
-    <!-- RISK PANEL -->
-    <section id="risks" class="section" aria-labelledby="risk-title">
-      <div class="section-head">
-        <h3 id="risk-title">Risk &amp; Anomaly Panel</h3>
-        <p class="muted">Active items flagged by monitoring rules.</p>
-      </div>
-      <div class="card">
-        <ul class="risk-list" id="risk-list"></ul>
-      </div>
-    </section>
-
-    <!-- INSIGHTS -->
-    <section id="insights" class="section" aria-labelledby="ai-title">
-      <div class="section-head row">
-        <div>
-          <h3 id="ai-title">AI Insights</h3>
-          <p class="muted">Synthesized narrative across regions and products.</p>
+    <!-- PRODUCTS + RISKS row -->
+    <div class="row-grid cols-2">
+      <section id="products" class="panel" aria-labelledby="prod-title">
+        <div class="panel-head">
+          <span class="title" id="prod-title">PRODUCT DESK</span>
+          <span class="sub">4 LINES</span>
         </div>
-        <button class="btn btn-ghost" id="regen-insight">↻ Regenerate mock insight</button>
-      </div>
-      <div class="card insight-card" id="insight-card"></div>
-    </section>
+        <div class="panel-body tight">
+          <div id="prod-grid" class="prod-grid"></div>
+        </div>
+      </section>
+
+      <section id="risks" class="panel" aria-labelledby="risk-title">
+        <div class="panel-head">
+          <span class="title" id="risk-title">RISK & ANOMALY</span>
+          <span class="sub" id="risk-count"></span>
+        </div>
+        <div class="panel-body">
+          <ul class="risk-list" id="risk-list"></ul>
+        </div>
+      </section>
+    </div>
 
     <!-- RELEASE NOTES -->
-    <section class="section" aria-labelledby="rel-title">
-      <div class="section-head">
-        <h3 id="rel-title">Release Notes</h3>
-        <p class="muted">Updated by the live coding agent after each implemented request.</p>
+    <section id="release" class="panel" aria-labelledby="rel-title">
+      <div class="panel-head">
+        <span class="title" id="rel-title">RELEASE NOTES</span>
+        <span class="sub">UPDATED BY LIVE AGENT</span>
       </div>
-      <div class="card">
-        <ul class="release-list">
+      <div class="panel-body">
+        <ul class="rel-list">
           <li><span class="ver">v0.3</span> Dashboard filters and risk review state added</li>
-          <li><span class="ver">v0.2</span> Mock request intake added</li>
+          <li><span class="ver">v0.2</span> Bloomberg-style terminal redesign · ticker, fkeys, command bar, SVG chart · auto-create issues via PAT</li>
           <li><span class="ver">v0.1</span> Baseline dashboard created</li>
         </ul>
       </div>
     </section>
   </main>
 
-  <footer class="footer">
-    <div>Built for live AI-assisted development demos</div>
-    <div class="muted">Synthetic data only · © FinSight Live</div>
-  </footer>
+  <!-- STATUS BAR -->
+  <div class="status-bar" role="status" aria-live="off">
+    <span class="seg"><span class="l">ENV</span> DEMO</span>
+    <span class="seg"><span class="l">USR</span> EXEC</span>
+    <span class="seg"><span class="l">PER</span> JUN FY26</span>
+    <span class="seg"><span class="l">CCY</span> USD</span>
+    <span class="seg"><span class="l">DATA</span> SYNTHETIC</span>
+    <span class="seg right"><span class="l">SYS</span> <span id="clock2">--:--:--</span></span>
+  </div>
 
-  <script src="data.js?v=0.1.0"></script>
-  <script src="app.js?v=0.1.0"></script>
+  <script src="data.js?v=0.2.0"></script>
+  <script src="app.js?v=0.2.0"></script>
 </body>
 </html>

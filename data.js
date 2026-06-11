@@ -2,47 +2,46 @@
    All values are illustrative for demo purposes only. */
 window.FINSIGHT_DATA = {
   kpis: [
-    { label: "Revenue",            value: "$48.2M", delta: "+12.4%", direction: "up",   tone: "good", note: "Above plan for the period." },
-    { label: "Gross Margin",       value: "63.8%",  delta: "-1.7 pts", direction: "down", tone: "warn", note: "Pressure in select segments." },
-    { label: "Pipeline",           value: "$126.5M", delta: "+8.9%",  direction: "up",   tone: "info", note: "Healthy coverage vs. quota." },
-    { label: "Forecast Accuracy",  value: "91.2%",  delta: "+3.1 pts", direction: "up",   tone: "good", note: "Improved vs. prior quarter." },
-    { label: "Operating Cost",     value: "$18.4M", delta: "+4.2%",  direction: "up",   tone: "warn", note: "Cloud infra trending up." },
-    { label: "Risk Score",         value: "Medium", delta: "6 active risks", direction: "flat", tone: "warn", note: "Reviewed weekly." }
+    { label: "Revenue",           value: "$48.2M",  delta: "+12.4%",        direction: "up",   tone: "good", note: "Above plan for the period." },
+    { label: "Gross Margin",      value: "63.8%",   delta: "-1.7 pts",      direction: "down", tone: "warn", note: "Pressure in select segments." },
+    { label: "Pipeline",          value: "$126.5M", delta: "+8.9%",         direction: "up",   tone: "info", note: "Healthy coverage vs. quota." },
+    { label: "Forecast Accuracy", value: "91.2%",   delta: "+3.1 pts",      direction: "up",   tone: "good", note: "Improved vs. prior quarter." },
+    { label: "Operating Cost",    value: "$18.4M",  delta: "+4.2%",         direction: "up",   tone: "warn", note: "Cloud infra trending up." },
+    { label: "Risk Score",        value: "MED",     delta: "6 active",      direction: "flat", tone: "warn", note: "Reviewed weekly." }
   ],
 
   trend: {
-    months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+    months: ["JAN", "FEB", "MAR", "APR", "MAY", "JUN"],
     revenue:  [31.2, 33.1, 34.5, 38.8, 42.3, 48.2],
     margin:   [62.1, 62.4, 63.0, 63.5, 63.7, 63.8],
     pipeline: [98.0, 104.2, 110.5, 116.3, 121.4, 126.5]
   },
-
   trendSeries: {
-    revenue:  { label: "Revenue ($M)", suffix: "M", prefix: "$" },
-    margin:   { label: "Margin (%)",   suffix: "%", prefix: "" },
-    pipeline: { label: "Pipeline ($M)", suffix: "M", prefix: "$" }
+    revenue:  { label: "REV ($M)",  unit: "M", prefix: "$", color: "amber" },
+    margin:   { label: "MGN (%)",   unit: "%", prefix: "",  color: "green" },
+    pipeline: { label: "PIPE ($M)", unit: "M", prefix: "$", color: "cyan"  }
   },
 
   regions: [
-    { name: "North America",         revenue: "$18.6M", growth: "+14.2%", margin: "65.1%", forecast: "94%", status: "On Track" },
-    { name: "Europe",                revenue: "$11.4M", growth: "+8.1%",  margin: "61.2%", forecast: "89%", status: "Watch" },
-    { name: "Asia Pacific",          revenue: "$9.8M",  growth: "+16.5%", margin: "64.0%", forecast: "92%", status: "On Track" },
-    { name: "Latin America",         revenue: "$4.7M",  growth: "+5.6%",  margin: "58.9%", forecast: "84%", status: "At Risk" },
-    { name: "Middle East & Africa",  revenue: "$3.7M",  growth: "+10.8%", margin: "60.4%", forecast: "87%", status: "Watch" }
+    { name: "NORTH AMERICA",        revenue: "$18.6M", growth: "+14.2%", margin: "65.1%", forecast: "94%", status: "On Track" },
+    { name: "EUROPE",               revenue: "$11.4M", growth: "+8.1%",  margin: "61.2%", forecast: "89%", status: "Watch" },
+    { name: "ASIA PACIFIC",         revenue: "$9.8M",  growth: "+16.5%", margin: "64.0%", forecast: "92%", status: "On Track" },
+    { name: "LATIN AMERICA",        revenue: "$4.7M",  growth: "+5.6%",  margin: "58.9%", forecast: "84%", status: "At Risk" },
+    { name: "MIDDLE EAST & AFRICA", revenue: "$3.7M",  growth: "+10.8%", margin: "60.4%", forecast: "87%", status: "Watch" }
   ],
 
   products: [
-    { name: "Cloud Solutions",       revenue: "$19.4M", growth: "+18.2%", adoption: 84 },
-    { name: "Security",              revenue: "$11.8M", growth: "+12.5%", adoption: 71 },
-    { name: "AI Services",           revenue: "$9.7M",  growth: "+34.6%", adoption: 62 },
-    { name: "Business Applications", revenue: "$7.3M",  growth: "+4.1%",  adoption: 58 }
+    { name: "CLOUD SOLUTIONS",       revenue: "$19.4M", growth: "+18.2%", adoption: 84 },
+    { name: "SECURITY",              revenue: "$11.8M", growth: "+12.5%", adoption: 71 },
+    { name: "AI SERVICES",           revenue: "$9.7M",  growth: "+34.6%", adoption: 62 },
+    { name: "BUSINESS APPLICATIONS", revenue: "$7.3M",  growth: "+4.1%",  adoption: 58 }
   ],
 
   risks: [
-    { text: "Margin compression in Latin America",          severity: "High" },
-    { text: "Forecast confidence below threshold in Europe", severity: "Medium" },
-    { text: "Operating cost growth in cloud infrastructure", severity: "Medium" },
-    { text: "Pipeline concentration in top 3 accounts",     severity: "Low" }
+    { text: "Margin compression in Latin America",           severity: "High" },
+    { text: "Forecast confidence below threshold in Europe",  severity: "Medium" },
+    { text: "Operating cost growth in cloud infrastructure",  severity: "Medium" },
+    { text: "Pipeline concentration in top 3 accounts",       severity: "Low" }
   ],
 
   insights: [
@@ -70,5 +69,25 @@ window.FINSIGHT_DATA = {
       "APAC continues to outperform with +16.5% growth and 92% forecast accuracy.",
       "Recommended next step: build a contingency plan for top-account concentration risk."
     ]
+  ],
+
+  // Synthetic ticker symbols for the marquee
+  ticker: [
+    { sym: "REV",  val: "48.20M",  chg: "+12.4%" },
+    { sym: "MGN",  val: "63.80%",  chg: "-1.7" },
+    { sym: "PIPE", val: "126.50M", chg: "+8.9%" },
+    { sym: "FCST", val: "91.20%",  chg: "+3.1" },
+    { sym: "OPEX", val: "18.40M",  chg: "+4.2%" },
+    { sym: "CASH", val: "212.40M", chg: "+1.8%" },
+    { sym: "EBIT", val: "11.30M",  chg: "+6.5%" },
+    { sym: "NAM",  val: "18.60M",  chg: "+14.2%" },
+    { sym: "EUR",  val: "11.40M",  chg: "+8.1%" },
+    { sym: "APAC", val: "9.80M",   chg: "+16.5%" },
+    { sym: "LATAM",val: "4.70M",   chg: "+5.6%" },
+    { sym: "MEA",  val: "3.70M",   chg: "+10.8%" },
+    { sym: "CLOUD",val: "19.40M",  chg: "+18.2%" },
+    { sym: "SEC",  val: "11.80M",  chg: "+12.5%" },
+    { sym: "AI",   val: "9.70M",   chg: "+34.6%" },
+    { sym: "BIZ",  val: "7.30M",   chg: "+4.1%" }
   ]
 };

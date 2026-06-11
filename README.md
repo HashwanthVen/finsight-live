@@ -1,9 +1,10 @@
 # FinSight Live
 
-A GitHub Pages-ready static dashboard for **live AI-assisted feature demos**.
-FinSight Live looks like a polished executive finance dashboard. During a
-stage demo, the audience can suggest features or bugs, you create or pick a
-GitHub Issue, a coding agent implements the change, and a push/merge to `main`
+A GitHub Pages-ready **Bloomberg-style terminal** dashboard for
+**live AI-assisted feature demos**. Looks like an executive finance terminal
+(amber-on-black, ticker tape, function keys, command line). During a stage
+demo, audience members suggest features or bugs, you pick or create a GitHub
+Issue, a coding agent implements the change, and a push/merge to `main`
 auto-deploys to GitHub Pages on the same URL.
 
 > Synthetic data only. No backend, no database, no auth, no build step.
@@ -66,21 +67,52 @@ That's it. From then on, **every push to `main` auto-deploys**.
 
 ---
 
-## Configure GitHub issue links
+## Submitting requests — three paths, no audience login required
 
-`requests.js` builds a prefilled GitHub issue URL. The constants at the top of
-the file control which repo it points to:
+The Request Center (`requests.html`) supports three submission paths so the
+audience never has to log into GitHub:
+
+### 1. ⚡ Auto-create on GitHub (recommended for live demos)
+The **presenter** pastes a fine-grained GitHub PAT into the
+`⚙ PRESENTER · AUTO-CREATE SETTINGS` panel **once on their demo device**.
+After that, the **▶ SUBMIT** button on the form (which is also what the
+audience taps from a kiosk / projected browser) creates the GitHub issue
+**directly via the GitHub REST API** — no login prompt, no redirect, instant.
+
+- Token is stored only in `localStorage` on the presenter's browser.
+- Token is never committed to the repo and never sent anywhere except
+  `api.github.com`.
+- Create one at
+  <https://github.com/settings/personal-access-tokens/new> with:
+  - Resource owner: `HashwanthVen`
+  - Only select repo: `finsight-live`
+  - Permissions → **Issues: Read and write**
+
+### 2. ✉ Email the presenter
+The form's **✉ EMAIL** button opens the user's mail app with a prefilled
+message to the presenter. Works on every mobile device without a GitHub
+account. The presenter can paste the body into an issue afterwards.
+
+### 3. 🔗 Prefilled GitHub issue link
+The **🔗 ISSUE LINK** button generates a `https://github.com/.../issues/new`
+URL pre-populated with the request body. This requires GitHub login to
+actually submit — best for participants who already have an account.
+
+### 4. 💾 Save locally
+Every submission is **always** also saved to the browser's `localStorage`
+queue. The presenter can later push the whole queue to GitHub with
+**⇧ PUSH ALL TO GH** in the queue panel.
+
+### Repo configuration
+The owner / repo for all the above is set at the top of `requests.js`:
 
 ```js
 const GITHUB_OWNER = "HashwanthVen";
 const GITHUB_REPO  = "finsight-live";
 ```
 
-- If both are set to a real repo, the Request Center shows an **Open GitHub
-  Issue** button that opens the new-issue page pre-filled with the request.
-- If either is left as `REPLACE_WITH_OWNER` / `REPLACE_WITH_REPO`, the
-  Request Center falls back to a **copyable issue body** so you can paste
-  it into a new issue manually.
+If left as `REPLACE_WITH_OWNER` / `REPLACE_WITH_REPO`, the page falls back
+to local-queue + copyable body only.
 
 ---
 
