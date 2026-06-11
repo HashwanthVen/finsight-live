@@ -1,0 +1,47 @@
+# Optimized for simple GitHub Pages live demo deployments.
+# - No build step; uploads the repository root as the static site artifact.
+# - Triggered on every push to main and on manual dispatch from the Actions tab.
+# - Uses the official GitHub Pages Actions only (no third-party deps).
+# - Set repository: Settings -> Pages -> Source = "GitHub Actions" once.
+
+name: Deploy FinSight Live to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent Pages deployment; cancel in-progress runs so the
+# latest push wins during a live demo.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload static site artifact
+        # Publishes the repository root as the site. index.html lives at the root.
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,64 @@
+name: Feature request
+description: Suggest a dashboard improvement for the live demo
+title: "[Feature] "
+labels: ["enhancement", "demo-request"]
+body:
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      description: Short, one-line summary of the requested feature.
+      placeholder: e.g. Add dark mode toggle to the top nav
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: Problem / why it matters
+      description: What problem does this solve? Who benefits?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed
+    attributes:
+      label: Proposed behavior
+      description: How should this work after it is implemented?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Dashboard
+        - Charts
+        - Regional table
+        - Risk panel
+        - Insights
+        - Requests page
+        - Mobile/responsive
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - Low
+        - Medium
+        - High
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: demo-safe
+    attributes:
+      label: Demo-safe confirmation
+      options:
+        - label: This request uses synthetic/demo data only and does not include confidential information.
+          required: true

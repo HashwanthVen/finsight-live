@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FinSight Live — Executive Finance Dashboard</title>
+  <meta name="description" content="FinSight Live — executive finance dashboard for live AI-assisted feature demos. Synthetic data only." />
+  <link rel="stylesheet" href="styles.css?v=0.1.0" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="topbar" role="banner">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">◆</div>
+      <div class="brand-text">
+        <h1>FinSight Live</h1>
+        <p>Executive finance dashboard for live AI-assisted feature demos</p>
+      </div>
+    </div>
+    <nav class="topnav" aria-label="Primary">
+      <a href="#dashboard" class="navlink active">Dashboard</a>
+      <a href="#insights" class="navlink">Insights</a>
+      <a href="#risks" class="navlink">Risks</a>
+      <a href="requests.html" class="navlink">Requests</a>
+    </nav>
+    <a class="btn btn-primary" href="requests.html" aria-label="Submit a feature request or bug report">+ Submit Request</a>
+  </header>
+
+  <main id="main">
+    <!-- HERO -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-card">
+        <span class="eyebrow">Executive Summary · FY26</span>
+        <h2 id="hero-title">Performance tracking above baseline with regional variance and margin pressure in select segments.</h2>
+        <div class="chips">
+          <span class="chip chip-good">▲ Revenue above plan</span>
+          <span class="chip chip-warn">● Margin watch</span>
+          <span class="chip chip-info">↗ Forecast improving</span>
+        </div>
+      </div>
+      <div class="hero-side">
+        <div class="hero-meta">
+          <div><span class="meta-label">Period</span><span class="meta-value">Jun · FY26</span></div>
+          <div><span class="meta-label">Currency</span><span class="meta-value">USD</span></div>
+          <div><span class="meta-label">Data</span><span class="meta-value">Synthetic</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- KPI CARDS -->
+    <section id="dashboard" class="section" aria-labelledby="kpi-title">
+      <div class="section-head">
+        <h3 id="kpi-title">Key Performance Indicators</h3>
+        <p class="muted">Snapshot of headline metrics for current period.</p>
+      </div>
+      <div class="kpi-grid" id="kpi-grid" aria-live="polite"></div>
+    </section>
+
+    <!-- REVENUE TREND -->
+    <section class="section" aria-labelledby="trend-title">
+      <div class="section-head row">
+        <div>
+          <h3 id="trend-title">Monthly Trend</h3>
+          <p class="muted">Toggle between key series. Mock data, FY26 H1.</p>
+        </div>
+        <div class="toggle-group" role="tablist" aria-label="Chart series">
+          <button class="toggle active" role="tab" aria-selected="true" data-series="revenue">Revenue</button>
+          <button class="toggle" role="tab" aria-selected="false" data-series="margin">Margin</button>
+          <button class="toggle" role="tab" aria-selected="false" data-series="pipeline">Pipeline</button>
+        </div>
+      </div>
+      <div class="card chart-card">
+        <div id="chart" class="chart" role="img" aria-label="Monthly trend chart"></div>
+        <div class="chart-axis" id="chart-axis"></div>
+      </div>
+    </section>
+
+    <!-- REGIONAL TABLE -->
+    <section class="section" aria-labelledby="region-title">
+      <div class="section-head row">
+        <div>
+          <h3 id="region-title">Regional Performance</h3>
+          <p class="muted">Filter and search across regions.</p>
+        </div>
+        <div class="controls">
+          <label class="sr-only" for="region-search">Search region</label>
+          <input id="region-search" class="input" type="search" placeholder="Search region…" />
+          <label class="sr-only" for="region-status">Filter by status</label>
+          <select id="region-status" class="input">
+            <option value="all">All statuses</option>
+            <option value="On Track">On Track</option>
+            <option value="Watch">Watch</option>
+            <option value="At Risk">At Risk</option>
+          </select>
+        </div>
+      </div>
+      <div class="card table-card">
+        <table class="data-table" aria-describedby="region-title">
+          <thead>
+            <tr>
+              <th scope="col">Region</th>
+              <th scope="col">Revenue</th>
+              <th scope="col">Growth</th>
+              <th scope="col">Margin</th>
+              <th scope="col">Forecast</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody id="region-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- PRODUCT CARDS -->
+    <section class="section" aria-labelledby="prod-title">
+      <div class="section-head">
+        <h3 id="prod-title">Product Performance</h3>
+        <p class="muted">Adoption and growth across product lines.</p>
+      </div>
+      <div class="product-grid" id="product-grid"></div>
+    </section>
+
+    <!-- RISK PANEL -->
+    <section id="risks" class="section" aria-labelledby="risk-title">
+      <div class="section-head">
+        <h3 id="risk-title">Risk &amp; Anomaly Panel</h3>
+        <p class="muted">Active items flagged by monitoring rules.</p>
+      </div>
+      <div class="card">
+        <ul class="risk-list" id="risk-list"></ul>
+      </div>
+    </section>
+
+    <!-- INSIGHTS -->
+    <section id="insights" class="section" aria-labelledby="ai-title">
+      <div class="section-head row">
+        <div>
+          <h3 id="ai-title">AI Insights</h3>
+          <p class="muted">Synthesized narrative across regions and products.</p>
+        </div>
+        <button class="btn btn-ghost" id="regen-insight">↻ Regenerate mock insight</button>
+      </div>
+      <div class="card insight-card" id="insight-card"></div>
+    </section>
+
+    <!-- RELEASE NOTES -->
+    <section class="section" aria-labelledby="rel-title">
+      <div class="section-head">
+        <h3 id="rel-title">Release Notes</h3>
+        <p class="muted">Updated by the live coding agent after each implemented request.</p>
+      </div>
+      <div class="card">
+        <ul class="release-list">
+          <li><span class="ver">v0.3</span> Dashboard filters and risk review state added</li>
+          <li><span class="ver">v0.2</span> Mock request intake added</li>
+          <li><span class="ver">v0.1</span> Baseline dashboard created</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div>Built for live AI-assisted development demos</div>
+    <div class="muted">Synthetic data only · © FinSight Live</div>
+  </footer>
+
+  <script src="data.js?v=0.1.0"></script>
+  <script src="app.js?v=0.1.0"></script>
+</body>
+</html>

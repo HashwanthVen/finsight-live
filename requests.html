@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Request Center — FinSight Live</title>
+  <meta name="description" content="Submit feature ideas or bug reports for the FinSight Live demo." />
+  <link rel="stylesheet" href="styles.css?v=0.1.0" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="topbar" role="banner">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">◆</div>
+      <div class="brand-text">
+        <h1>FinSight Live</h1>
+        <p>Request Center</p>
+      </div>
+    </div>
+    <nav class="topnav" aria-label="Primary">
+      <a href="index.html#dashboard" class="navlink">Dashboard</a>
+      <a href="index.html#insights" class="navlink">Insights</a>
+      <a href="index.html#risks" class="navlink">Risks</a>
+      <a href="requests.html" class="navlink active">Requests</a>
+    </nav>
+    <a class="btn btn-ghost" href="index.html" aria-label="Back to dashboard">← Back to Dashboard</a>
+  </header>
+
+  <div class="page-head">
+    <div>
+      <h2>Request Center</h2>
+      <p>Submit feature ideas or issues for the live agent demo.</p>
+    </div>
+  </div>
+
+  <main id="main" class="page-wrap">
+    <div class="notice">
+      <strong>Static demo mode:</strong> requests are stored locally in this browser unless submitted to GitHub Issues.
+    </div>
+
+    <!-- FORM -->
+    <section class="card" aria-labelledby="form-title">
+      <h3 id="form-title" style="margin-top:0;">New request</h3>
+      <form id="request-form" novalidate>
+        <div class="form-grid">
+          <div class="form-row">
+            <label for="f-type">Request type</label>
+            <select id="f-type" required>
+              <option>Feature</option>
+              <option>Bug</option>
+              <option>UI polish</option>
+              <option>Data insight</option>
+              <option>Accessibility</option>
+              <option>Performance</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="f-priority">Priority</label>
+            <select id="f-priority" required>
+              <option>Low</option>
+              <option selected>Medium</option>
+              <option>High</option>
+            </select>
+          </div>
+
+          <div class="form-row full">
+            <label for="f-title">Title <span style="color:var(--bad)">*</span></label>
+            <input id="f-title" class="input" type="text" required placeholder="e.g. Add dark mode toggle" />
+          </div>
+
+          <div class="form-row full">
+            <label for="f-desc">Description <span style="color:var(--bad)">*</span></label>
+            <textarea id="f-desc" required placeholder="Describe the request in clear terms."></textarea>
+          </div>
+
+          <div class="form-row full">
+            <label for="f-why">Why it matters</label>
+            <textarea id="f-why" placeholder="What value does this add? Who benefits?"></textarea>
+          </div>
+
+          <div class="form-row">
+            <label for="f-area">Area</label>
+            <select id="f-area">
+              <option>Dashboard</option>
+              <option>Charts</option>
+              <option>Regional table</option>
+              <option>Risk panel</option>
+              <option>Insights</option>
+              <option>Requests page</option>
+              <option>Mobile/responsive</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="f-reporter">Reporter (optional)</label>
+            <input id="f-reporter" class="input" type="text" placeholder="Your name or handle" />
+          </div>
+
+          <div class="form-row full">
+            <label for="f-expected">Expected behavior</label>
+            <textarea id="f-expected" placeholder="Describe the expected result after the change."></textarea>
+          </div>
+
+          <div class="form-row full">
+            <div class="checkbox-row">
+              <input id="f-safe" type="checkbox" required />
+              <label for="f-safe" style="font-weight:500;color:var(--text);">
+                This request uses synthetic/demo data only and does not include confidential information. <span style="color:var(--bad)">*</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="error-msg" id="form-error" role="alert" aria-live="polite"></div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-primary" id="btn-save">💾 Save to local queue</button>
+          <button type="button" class="btn btn-ghost" id="btn-issue">🔗 Generate GitHub Issue link</button>
+          <button type="button" class="btn btn-ghost" id="btn-clear">Clear form</button>
+        </div>
+
+        <div class="issue-output" id="issue-output" aria-live="polite">
+          <h4 style="margin:18px 0 8px;">Generated issue</h4>
+          <p class="muted" id="issue-hint" style="font-size:13px;margin-bottom:10px;"></p>
+          <div id="issue-link-wrap" style="margin-bottom:10px;"></div>
+          <textarea id="issue-body" readonly aria-label="Generated GitHub issue body"></textarea>
+          <div class="form-actions" style="border-top:none;padding-top:10px;">
+            <button type="button" class="btn btn-ghost btn-sm" id="btn-copy-body">📋 Copy issue body</button>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <!-- QUEUE -->
+    <section class="section" style="margin-top:32px;" aria-labelledby="queue-title">
+      <div class="section-head row">
+        <div>
+          <h3 id="queue-title">Local request queue</h3>
+          <p class="muted">Stored in your browser via localStorage. <span id="queue-count"></span></p>
+        </div>
+        <button class="btn btn-danger btn-sm" id="btn-clear-queue">Clear all saved</button>
+      </div>
+      <div id="queue" class="queue-grid"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div>Built for live AI-assisted development demos</div>
+    <div class="muted">Synthetic data only · © FinSight Live</div>
+  </footer>
+
+  <script src="requests.js?v=0.1.0"></script>
+</body>
+</html>

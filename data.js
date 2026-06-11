@@ -1,0 +1,74 @@
+/* FinSight Live — mock/synthetic data
+   All values are illustrative for demo purposes only. */
+window.FINSIGHT_DATA = {
+  kpis: [
+    { label: "Revenue",            value: "$48.2M", delta: "+12.4%", direction: "up",   tone: "good", note: "Above plan for the period." },
+    { label: "Gross Margin",       value: "63.8%",  delta: "-1.7 pts", direction: "down", tone: "warn", note: "Pressure in select segments." },
+    { label: "Pipeline",           value: "$126.5M", delta: "+8.9%",  direction: "up",   tone: "info", note: "Healthy coverage vs. quota." },
+    { label: "Forecast Accuracy",  value: "91.2%",  delta: "+3.1 pts", direction: "up",   tone: "good", note: "Improved vs. prior quarter." },
+    { label: "Operating Cost",     value: "$18.4M", delta: "+4.2%",  direction: "up",   tone: "warn", note: "Cloud infra trending up." },
+    { label: "Risk Score",         value: "Medium", delta: "6 active risks", direction: "flat", tone: "warn", note: "Reviewed weekly." }
+  ],
+
+  trend: {
+    months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+    revenue:  [31.2, 33.1, 34.5, 38.8, 42.3, 48.2],
+    margin:   [62.1, 62.4, 63.0, 63.5, 63.7, 63.8],
+    pipeline: [98.0, 104.2, 110.5, 116.3, 121.4, 126.5]
+  },
+
+  trendSeries: {
+    revenue:  { label: "Revenue ($M)", suffix: "M", prefix: "$" },
+    margin:   { label: "Margin (%)",   suffix: "%", prefix: "" },
+    pipeline: { label: "Pipeline ($M)", suffix: "M", prefix: "$" }
+  },
+
+  regions: [
+    { name: "North America",         revenue: "$18.6M", growth: "+14.2%", margin: "65.1%", forecast: "94%", status: "On Track" },
+    { name: "Europe",                revenue: "$11.4M", growth: "+8.1%",  margin: "61.2%", forecast: "89%", status: "Watch" },
+    { name: "Asia Pacific",          revenue: "$9.8M",  growth: "+16.5%", margin: "64.0%", forecast: "92%", status: "On Track" },
+    { name: "Latin America",         revenue: "$4.7M",  growth: "+5.6%",  margin: "58.9%", forecast: "84%", status: "At Risk" },
+    { name: "Middle East & Africa",  revenue: "$3.7M",  growth: "+10.8%", margin: "60.4%", forecast: "87%", status: "Watch" }
+  ],
+
+  products: [
+    { name: "Cloud Solutions",       revenue: "$19.4M", growth: "+18.2%", adoption: 84 },
+    { name: "Security",              revenue: "$11.8M", growth: "+12.5%", adoption: 71 },
+    { name: "AI Services",           revenue: "$9.7M",  growth: "+34.6%", adoption: 62 },
+    { name: "Business Applications", revenue: "$7.3M",  growth: "+4.1%",  adoption: 58 }
+  ],
+
+  risks: [
+    { text: "Margin compression in Latin America",          severity: "High" },
+    { text: "Forecast confidence below threshold in Europe", severity: "Medium" },
+    { text: "Operating cost growth in cloud infrastructure", severity: "Medium" },
+    { text: "Pipeline concentration in top 3 accounts",     severity: "Low" }
+  ],
+
+  insights: [
+    [
+      "Revenue growth is strongest in APAC and North America.",
+      "Margin pressure is concentrated in Latin America and selected business applications.",
+      "Pipeline quality improved, but concentration risk remains.",
+      "Recommended next step: review region-level margin drivers and validate forecast assumptions."
+    ],
+    [
+      "AI Services is the fastest-growing product line at +34.6% YoY.",
+      "Europe forecast confidence remains below the 90% threshold and warrants closer review.",
+      "Top 3 accounts represent an outsized share of pipeline — diversification recommended.",
+      "Recommended next step: schedule a deep-dive on AI Services capacity and EMEA forecast hygiene."
+    ],
+    [
+      "Operating cost growth of +4.2% is being driven primarily by cloud infrastructure.",
+      "Latin America status flipped to 'At Risk' due to combined margin and forecast pressure.",
+      "Forecast accuracy improved +3.1 points — operating cadence is paying off.",
+      "Recommended next step: validate cloud cost optimization initiatives and reforecast LATAM."
+    ],
+    [
+      "Pipeline is up +8.9% but concentrated in three accounts representing >40% of total.",
+      "Margin watch persists; Business Applications is the segment dragging the blended rate.",
+      "APAC continues to outperform with +16.5% growth and 92% forecast accuracy.",
+      "Recommended next step: build a contingency plan for top-account concentration risk."
+    ]
+  ]
+};

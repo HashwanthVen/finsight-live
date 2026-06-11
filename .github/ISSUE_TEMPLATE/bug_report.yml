@@ -1,0 +1,74 @@
+name: Bug report
+description: Report an issue in the dashboard demo
+title: "[Bug] "
+labels: ["bug", "demo-request"]
+body:
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      description: Short, one-line summary of the bug.
+      placeholder: e.g. KPI cards overflow viewport on iPhone SE
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Numbered steps another person can follow.
+      placeholder: |
+        1. Open the dashboard
+        2. Resize to 360px width
+        3. Observe overflow
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Dashboard
+        - Charts
+        - Regional table
+        - Risk panel
+        - Insights
+        - Requests page
+        - Mobile/responsive
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - Low
+        - Medium
+        - High
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: demo-safe
+    attributes:
+      label: Demo-safe confirmation
+      options:
+        - label: This bug report uses synthetic/demo data only and does not include confidential information.
+          required: true

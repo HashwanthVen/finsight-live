@@ -1,0 +1,344 @@
+/* FinSight Live — Request Center
+   Static-only: stores submissions in localStorage and can build a prefilled
+   GitHub issue URL when GITHUB_OWNER / GITHUB_REPO are configured below. */
+(function () {
+  "use strict";
+
+  // ---- CONFIGURE FOR YOUR REPO ------------------------------------------------
+  const GITHUB_OWNER = "HashwanthVen";   // REPLACE_WITH_OWNER if reusing elsewhere
+  const GITHUB_REPO  = "finsight-live";  // REPLACE_WITH_REPO  if reusing elsewhere
+  // -----------------------------------------------------------------------------
+
+  const STORAGE_KEY = "finsight.requests.v1";
+  const PLACEHOLDER_OWNER = "REPLACE_WITH_OWNER";
+  const PLACEHOLDER_REPO  = "REPLACE_WITH_REPO";
+
+  const SAMPLES = [
+    { type: "Feature",      title: "Add dark mode toggle",         priority: "Medium", area: "Dashboard",         sample: true, description: "Add a toggle so the dashboard can switch between dark and light themes.", why: "Improves accessibility and viewing comfort in varied lighting.", expected: "A visible toggle persists the chosen theme across reloads." },
+    { type: "Feature",      title: "Add forecast variance card",   priority: "High",   area: "Dashboard",         sample: true, description: "Add a KPI card showing forecast variance vs actual.", why: "Surfaces forecasting accuracy at a glance.", expected: "New KPI card appears in the grid with delta vs plan." },
+    { type: "UI polish",    title: "Add chart type switcher",      priority: "Low",    area: "Charts",            sample: true, description: "Allow switching the trend chart between bar and line views.", why: "Different chart types suit different conversations.", expected: "Toggle changes the rendered chart type." },
+    { type: "Bug",          title: "Fix mobile KPI layout",        priority: "High",   area: "Mobile/responsive", sample: true, description: "KPI cards overflow on narrow viewports.", why: "Demo on mobile needs to look polished.", expected: "KPI cards stack and fit within viewport." },
+    { type: "Data insight", title: "Add risk heatmap",             priority: "Medium", area: "Risk panel",        sample: true, description: "Render risks as a heatmap by severity and region.", why: "Surfaces concentration patterns quickly.", expected: "New heatmap section appears under the risk list." }
+  ];
+
+  // ---- STORAGE ----------------------------------------------------------------
+  function loadQueue() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return [];
+      const arr = JSON.parse(raw);
+      return Array.isArray(arr) ? arr : [];
+    } catch (e) {
+      console.warn("FinSight: failed to load queue", e);
+      return [];
+    }
+  }
+  function saveQueue(arr) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); }
+    catch (e) { console.warn("FinSight: failed to save queue", e); }
+  }
+
+  // ---- FORM -------------------------------------------------------------------
+  function readForm() {
+    return {
+      type:        $("f-type").value,
+      title:       $("f-title").value.trim(),
+      description: $("f-desc").value.trim(),
+      why:         $("f-why").value.trim(),
+      priority:    $("f-priority").value,
+      area:        $("f-area").value,
+      expected:    $("f-expected").value.trim(),
+      reporter:    $("f-reporter").value.trim(),
+      safe:        $("f-safe").checked
+    };
+  }
+
+  function validate(form) {
+    if (!form.title)       return "Title is required.";
+    if (!form.description) return "Description is required.";
+    if (!form.safe)        return "Please confirm this request uses synthetic/demo data only.";
+    return null;
+  }
+
+  function setError(msg) {
+    const el = $("form-error");
+    el.textContent = msg || "";
+  }
+
+  function clearForm() {
+    ["f-title", "f-desc", "f-why", "f-expected", "f-reporter"].forEach((id) => { $(id).value = ""; });
+    $("f-type").selectedIndex = 0;
+    $("f-priority").value = "Medium";
+    $("f-area").selectedIndex = 0;
+    $("f-safe").checked = false;
+    $("issue-output").classList.remove("visible");
+    setError("");
+  }
+
+  // ---- ISSUE GENERATION -------------------------------------------------------
+  function buildIssueTitle(form) {
+    return `[${form.type}] ${form.title}`;
+  }
+
+  function buildIssueBody(form) {
+    const ts = new Date().toISOString();
+    return [
+      `**Request type:** ${form.type}`,
+      `**Priority:** ${form.priority}`,
+      `**Area:** ${form.area}`,
+      "",
+      `### Description`,
+      form.description || "_(none provided)_",
+      "",
+      `### Why it matters`,
+      form.why || "_(none provided)_",
+      "",
+      `### Expected behavior`,
+      form.expected || "_(none provided)_",
+      "",
+      `**Reporter:** ${form.reporter || "Anonymous"}`,
+      `**Demo-safe confirmation:** ${form.safe ? "✅ Yes — synthetic/demo data only" : "❌ Not confirmed"}`,
+      `**Submitted:** ${ts}`,
+      "",
+      "---",
+      "_Generated by FinSight Live Request Center (static demo)._"
+    ].join("\n");
+  }
+
+  function buildIssueUrl(form) {
+    const base = `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/issues/new`;
+    const params = new URLSearchParams({
+      title: buildIssueTitle(form),
+      body:  buildIssueBody(form),
+      labels: ["demo-request", form.type.toLowerCase().replace(/\s+/g, "-")].join(",")
+    });
+    return `${base}?${params.toString()}`;
+  }
+
+  function ownerRepoConfigured() {
+    return GITHUB_OWNER && GITHUB_REPO &&
+           GITHUB_OWNER !== PLACEHOLDER_OWNER &&
+           GITHUB_REPO  !== PLACEHOLDER_REPO;
+  }
+
+  function generateIssue() {
+    const form = readForm();
+    const err = validate(form);
+    if (err) { setError(err); return; }
+    setError("");
+
+    const body = buildIssueBody(form);
+    const title = buildIssueTitle(form);
+    $("issue-body").value = `Title: ${title}\n\n${body}`;
+    $("issue-output").classList.add("visible");
+
+    const wrap = $("issue-link-wrap");
+    if (ownerRepoConfigured()) {
+      const url = buildIssueUrl(form);
+      $("issue-hint").textContent =
+        `Repo configured: ${GITHUB_OWNER}/${GITHUB_REPO}. Open the prefilled issue or copy the body below.`;
+      wrap.innerHTML = `<a class="btn btn-primary" target="_blank" rel="noopener" href="${escapeAttr(url)}">↗ Open GitHub Issue</a>`;
+    } else {
+      $("issue-hint").textContent =
+        `GITHUB_OWNER / GITHUB_REPO not configured in requests.js. Copy the issue body below and paste it into a new GitHub issue manually.`;
+      wrap.innerHTML = "";
+    }
+  }
+
+  // ---- QUEUE ------------------------------------------------------------------
+  function saveCurrent() {
+    const form = readForm();
+    const err = validate(form);
+    if (err) { setError(err); return; }
+    setError("");
+
+    const queue = loadQueue();
+    queue.unshift({
+      id: "req-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      type: form.type,
+      title: form.title,
+      description: form.description,
+      why: form.why,
+      priority: form.priority,
+      area: form.area,
+      expected: form.expected,
+      reporter: form.reporter,
+      safe: form.safe,
+      status: "New",
+      createdAt: new Date().toISOString()
+    });
+    saveQueue(queue);
+    renderQueue();
+    clearForm();
+  }
+
+  function renderQueue() {
+    const queue = loadQueue();
+    const root = $("queue");
+    const count = $("queue-count");
+
+    if (queue.length === 0) {
+      count.textContent = "(empty — showing sample suggestions)";
+      root.innerHTML = SAMPLES.map((s) => sampleCard(s)).join("") + emptyHint();
+      bindSampleButtons();
+      return;
+    }
+
+    count.textContent = `(${queue.length} saved)`;
+    root.innerHTML = queue.map((r) => queueCard(r)).join("");
+    bindQueueButtons();
+  }
+
+  function queueCard(r) {
+    const dt = formatTs(r.createdAt);
+    return `
+      <article class="queue-card" data-id="${escapeAttr(r.id)}">
+        <div class="qhead">
+          <h4>${escapeHtml(r.title)}</h4>
+          <span class="tag priority-${escapeAttr(r.priority)}">${escapeHtml(r.priority)}</span>
+        </div>
+        <div class="qmeta">
+          <span class="tag type-${escapeAttr(r.type)}">${escapeHtml(r.type)}</span>
+          <span>Area: ${escapeHtml(r.area)}</span>
+          <span>Status: ${escapeHtml(r.status)}</span>
+        </div>
+        <div class="qmeta"><span>Created: ${escapeHtml(dt)}</span></div>
+        <div class="qactions">
+          <button class="btn btn-ghost btn-sm" data-act="copy">📋 Copy issue body</button>
+          <button class="btn btn-ghost btn-sm" data-act="mark">${r.status === "Reviewed" ? "Reopen" : "Mark reviewed"}</button>
+          <button class="btn btn-danger btn-sm" data-act="del">Delete</button>
+        </div>
+      </article>`;
+  }
+
+  function sampleCard(s) {
+    return `
+      <article class="queue-card sample">
+        <div class="qhead">
+          <h4>${escapeHtml(s.title)} <span class="tag" style="margin-left:6px;">Sample</span></h4>
+          <span class="tag priority-${escapeAttr(s.priority)}">${escapeHtml(s.priority)}</span>
+        </div>
+        <div class="qmeta">
+          <span class="tag type-${escapeAttr(s.type)}">${escapeHtml(s.type)}</span>
+          <span>Area: ${escapeHtml(s.area)}</span>
+        </div>
+        <div class="qmeta muted"><span>${escapeHtml(s.description)}</span></div>
+        <div class="qactions">
+          <button class="btn btn-ghost btn-sm" data-act="use-sample"
+            data-payload='${escapeAttr(JSON.stringify(s))}'>Use this</button>
+        </div>
+      </article>`;
+  }
+
+  function emptyHint() {
+    return `<div class="queue-empty" style="grid-column:1/-1;">Save a request above and it will appear here.</div>`;
+  }
+
+  function bindQueueButtons() {
+    document.querySelectorAll("#queue .queue-card").forEach((card) => {
+      const id = card.dataset.id;
+      card.querySelector('[data-act="copy"]').addEventListener("click", () => copyIssueBodyFor(id));
+      card.querySelector('[data-act="mark"]').addEventListener("click", () => toggleReviewed(id));
+      card.querySelector('[data-act="del"]').addEventListener("click", () => deleteRequest(id));
+    });
+  }
+
+  function bindSampleButtons() {
+    document.querySelectorAll('#queue [data-act="use-sample"]').forEach((btn) => {
+      btn.addEventListener("click", () => {
+        try {
+          const s = JSON.parse(btn.dataset.payload);
+          $("f-type").value = s.type;
+          $("f-title").value = s.title;
+          $("f-desc").value = s.description;
+          $("f-why").value = s.why;
+          $("f-expected").value = s.expected;
+          $("f-priority").value = s.priority;
+          $("f-area").value = s.area;
+          $("f-safe").checked = true;
+          $("f-title").focus();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } catch (e) { console.warn("FinSight: failed to use sample", e); }
+      });
+    });
+  }
+
+  function copyIssueBodyFor(id) {
+    const r = loadQueue().find((x) => x.id === id);
+    if (!r) return;
+    const body = buildIssueBody(r);
+    const text = `Title: ${buildIssueTitle(r)}\n\n${body}`;
+    copyText(text);
+  }
+
+  function toggleReviewed(id) {
+    const queue = loadQueue();
+    const idx = queue.findIndex((x) => x.id === id);
+    if (idx === -1) return;
+    queue[idx].status = queue[idx].status === "Reviewed" ? "New" : "Reviewed";
+    saveQueue(queue);
+    renderQueue();
+  }
+
+  function deleteRequest(id) {
+    const queue = loadQueue().filter((x) => x.id !== id);
+    saveQueue(queue);
+    renderQueue();
+  }
+
+  function clearQueue() {
+    if (!confirm("Delete all locally saved requests? This cannot be undone.")) return;
+    saveQueue([]);
+    renderQueue();
+  }
+
+  // ---- UTILS ------------------------------------------------------------------
+  function $(id) { return document.getElementById(id); }
+  function escapeHtml(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    })[c]);
+  }
+  function escapeAttr(s) { return escapeHtml(s); }
+  function formatTs(iso) {
+    try { return new Date(iso).toLocaleString(); } catch (_) { return iso; }
+  }
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(
+        () => flashToast("Copied issue body to clipboard"),
+        () => fallbackCopy(text)
+      );
+    } else {
+      fallbackCopy(text);
+    }
+  }
+  function fallbackCopy(text) {
+    const ta = document.createElement("textarea");
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); flashToast("Copied"); } catch (_) {}
+    document.body.removeChild(ta);
+  }
+  function flashToast(msg) {
+    const t = document.createElement("div");
+    t.textContent = msg;
+    Object.assign(t.style, {
+      position: "fixed", bottom: "24px", right: "24px",
+      background: "var(--accent)", color: "#fff", padding: "10px 16px",
+      borderRadius: "10px", boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
+      zIndex: 1000, fontSize: "14px", fontWeight: "600"
+    });
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 1800);
+  }
+
+  // ---- INIT -------------------------------------------------------------------
+  document.addEventListener("DOMContentLoaded", () => {
+    $("btn-save").addEventListener("click", saveCurrent);
+    $("btn-issue").addEventListener("click", generateIssue);
+    $("btn-clear").addEventListener("click", clearForm);
+    $("btn-copy-body").addEventListener("click", () => copyText($("issue-body").value));
+    $("btn-clear-queue").addEventListener("click", clearQueue);
+    renderQueue();
+  });
+})();
