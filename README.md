@@ -39,6 +39,10 @@ after a deploy.
 | `app.js` | Dashboard behavior — ticker, clock, chart, filters, command bar, risk review, insight rotation |
 | `requests.js` | Request Center behavior — form, prefilled GitHub issue URL, mailto, optional PAT auto-create, local queue |
 | `data.js` | Mock/synthetic data for the dashboard |
+| `worker/worker.js` | Cloudflare Worker relay (optional, enables one-tap submit with no audience login) |
+| `worker/wrangler.toml` | Cloudflare Worker config |
+| `worker/README.md` | 3-command deploy guide for the Worker |
+| `feature-requests.md` | Live table of audience requests (appended by the Worker) |
 | `.nojekyll` | Tells GitHub Pages to serve files as-is (no Jekyll processing) |
 | `.github/workflows/pages.yml` | Auto-deploys the repo root to GitHub Pages on push to `main` |
 | `.github/ISSUE_TEMPLATE/feature_request.yml` | Structured feature request form on GitHub |
@@ -85,52 +89,50 @@ From then on, **every push to `main` auto-deploys**.
 
 ---
 
-## Submitting requests — what the audience sees
+## Submitting requests — simple mobile-first form
 
-The Request Center (`requests.html`) has four submission paths. The first
-one is the default and works for anyone with a free GitHub account.
+The Request Center at `requests.html` is intentionally tiny: **3 fields,
+one button, mobile-first.**
 
-### 1. ▶ SUBMIT TO GITHUB *(primary, recommended)*
-Audience fills the form and taps the big amber button. A new tab opens on
-`github.com/HashwanthVen/finsight-live/issues/new` with **title, body, and
-labels pre-filled**. They click GitHub's green **"Submit new issue"** →
-issue lands in your repo. Requires a free GitHub account (one tap if they
-have the GitHub mobile app).
+Fields:
+1. **What should we build?** (title — required)
+2. **Tell us more** (description — optional)
+3. **Type** (Feature / Bug / UI polish / Idea)
 
-### 2. ⚡ AUTO-CREATE *(optional — presenter only)*
-If you (the presenter) paste a fine-grained PAT into the
-**⚙ PRESENTER · AUTO-CREATE SETTINGS** panel on your demo device, an extra
-**⚡ AUTO-CREATE** button appears on the form. One tap → issue created via
-the GitHub REST API, no redirect. The token is stored only in your
-browser's `localStorage`, never committed, never sent anywhere except
-`api.github.com`.
+### Submit behavior (in order)
+1. **One-tap mode** — if a Cloudflare Worker URL is configured (see
+   `worker/README.md`), submit POSTs directly to the Worker. The audience
+   needs no GitHub account, no email, no login. The Worker:
+   - appends a row to `feature-requests.md` in the repo
+   - creates a GitHub issue
+   - returns the issue URL to the page
+2. **Default mode** — if no Worker is configured, submit opens GitHub's
+   prefilled new-issue page in a new tab. The audience taps **"Submit new
+   issue"** there to post it (requires a free GitHub account).
 
-Create a token at
-<https://github.com/settings/personal-access-tokens/new>:
-- **Resource owner:** `HashwanthVen`
-- **Only select repositories:** `finsight-live`
-- **Repository permissions → Issues → Read and write**
-
-### 3. ✉ EMAIL
-Opens the user's mail app with a pre-filled message to the presenter.
-Works on every mobile device, no GitHub account needed. The presenter
-can paste the body into a new issue afterwards.
-
-### 4. 💾 SAVE LOCAL
-Every submission is also saved to the browser's `localStorage` queue as a
-backup. The queue panel includes **⇧ PUSH ALL TO GH** to bulk-create issues
-from the queue using the presenter PAT.
+### Live Audience Requests panel
+The dashboard reads `feature-requests.md` and renders the latest rows in a
+**LIVE AUDIENCE REQUESTS** panel that auto-refreshes every 30 seconds.
+When a submission comes in, the panel updates on the next refresh (or
+push **↻ REFRESH**) — no full reload required.
 
 ### Repo configuration
-The owner / repo for all the above is set at the top of `requests.js`:
+`requests.js`:
 
 ```js
 const GITHUB_OWNER = "HashwanthVen";
 const GITHUB_REPO  = "finsight-live";
+// Hard-code this once you've deployed the Worker:
+const WORKER_URL_DEFAULT = "";
 ```
 
-If left as `REPLACE_WITH_OWNER` / `REPLACE_WITH_REPO`, the page falls back
-to local-queue + copyable body only.
+### Cloudflare Worker (optional, 10-min setup for one-tap submit)
+See [`worker/README.md`](worker/README.md). You'll need:
+- a free Cloudflare account (email only, no credit card)
+- `npm i -g wrangler`
+- a fine-grained PAT with **Contents: R/W + Issues: R/W** on `finsight-live`
+- 3 commands: `wrangler login` → `wrangler secret put GH_TOKEN` →
+  `wrangler deploy`
 
 ---
 

@@ -280,6 +280,46 @@
     setTimeout(() => t.remove(), 2400);
   }
 
+  /* ---------- AUDIENCE REQUESTS (feature-requests.md) ---------- */
+  async function loadAudience() {
+    const tbody = $("aud-tbody");
+    if (!tbody) return;
+    try {
+      const res = await fetch("feature-requests.md?cb=" + Date.now());
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const text = await res.text();
+      const rows = parseRequestsTable(text);
+      if (rows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--dim);padding:18px;">NO REQUESTS YET — TAP "+ NEW REQUEST"</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = rows.slice(0, 25).map((r) => `
+        <tr>
+          <td>${escapeHtml(r.when)}</td>
+          <td><span class="status-pill watch">${escapeHtml(r.type || "REQ")}</span></td>
+          <td><b class="amber">${escapeHtml(r.title)}</b></td>
+          <td>${escapeHtml(r.who || "anon")}</td>
+        </tr>
+      `).join("");
+    } catch (e) {
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--dim);padding:18px;">FEED UNAVAILABLE</td></tr>`;
+    }
+  }
+  function parseRequestsTable(md) {
+    const lines = md.split(/\r?\n/);
+    const out = [];
+    let headerSeen = false;
+    for (const ln of lines) {
+      if (!ln.trim().startsWith("|")) { headerSeen = false; continue; }
+      if (/^\|\s*-+/.test(ln)) { headerSeen = true; continue; }
+      if (!headerSeen) continue;
+      const cells = ln.split("|").slice(1, -1).map((c) => c.trim());
+      if (cells.length < 3) continue;
+      out.push({ when: cells[0], type: cells[1], title: cells[2], who: cells[3] || "" });
+    }
+    return out.reverse();
+  }
+
   /* ---------- UTILS ---------- */
   function $(id) { return document.getElementById(id); }
   function escapeHtml(s) {
@@ -302,5 +342,10 @@
     renderInsight();
     bindRegen();
     bindCommand();
+    loadAudience();
+    const refresh = $("aud-refresh");
+    if (refresh) refresh.addEventListener("click", loadAudience);
+    // auto-refresh the audience feed every 30s so new submissions land without manual refresh
+    setInterval(loadAudience, 30000);
   });
 })();

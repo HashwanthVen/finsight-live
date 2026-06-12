@@ -1,0 +1,16 @@
+name = "finsight-relay"
+main = "worker.js"
+compatibility_date = "2024-11-12"
+
+# Public (non-secret) config the Worker uses.
+[vars]
+OWNER  = "HashwanthVen"
+REPO   = "finsight-live"
+BRANCH = "main"
+
+# Optional: rate-limit KV namespace. Uncomment + run:
+#   wrangler kv namespace create finsight_rl
+# then paste the returned id here.
+# [[kv_namespaces]]
+# binding = "RL"
+# id = "PASTE_KV_ID_HERE"

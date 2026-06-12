@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FINSIGHT LIVE · TERMINAL</title>
   <meta name="description" content="FinSight Live — Bloomberg-style executive terminal for live AI-assisted feature demos. Synthetic data only." />
-  <link rel="stylesheet" href="styles.css?v=0.3.0" />
+  <link rel="stylesheet" href="styles.css?v=0.4.0" />
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to main content</a>
@@ -34,8 +34,9 @@
     <a class="fkey" href="#products"><span class="k">F5</span> PROD</a>
     <a class="fkey" href="#risks"><span class="k">F6</span> RISK</a>
     <a class="fkey" href="#insights"><span class="k">F7</span> INSI</a>
-    <a class="fkey" href="#release"><span class="k">F8</span> NOTE</a>
-    <a class="fkey primary" href="requests.html"><span class="k">F9</span> REQS</a>
+    <a class="fkey" href="#audience"><span class="k">F8</span> AUD</a>
+    <a class="fkey" href="#release"><span class="k">F9</span> NOTE</a>
+    <a class="fkey primary" href="requests.html"><span class="k">+</span> REQUEST</a>
   </nav>
 
   <!-- COMMAND BAR -->
@@ -162,6 +163,31 @@
       </section>
     </div>
 
+    <!-- LIVE AUDIENCE REQUESTS -->
+    <section id="audience" class="panel" aria-labelledby="aud-title">
+      <div class="panel-head">
+        <span class="title" id="aud-title">LIVE AUDIENCE REQUESTS</span>
+        <span class="sub">FROM feature-requests.md · REAL TIME</span>
+        <div class="right">
+          <a class="btn sm" href="requests.html">+ NEW REQUEST</a>
+          <button class="btn sm" id="aud-refresh">↻ REFRESH</button>
+        </div>
+      </div>
+      <div class="panel-body tight">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>WHEN</th>
+              <th>TYPE</th>
+              <th>TITLE</th>
+              <th>WHO</th>
+            </tr>
+          </thead>
+          <tbody id="aud-tbody"><tr><td colspan="4" style="text-align:center;color:var(--dim);padding:18px;">LOADING…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
     <!-- RELEASE NOTES -->
     <section id="release" class="panel" aria-labelledby="rel-title">
       <div class="panel-head">
@@ -170,6 +196,7 @@
       </div>
       <div class="panel-body">
         <ul class="rel-list">
+          <li><span class="ver">v0.4</span> Simple 3-field mobile-first request form · LIVE AUDIENCE REQUESTS panel reads <code>feature-requests.md</code> · Cloudflare Worker relay scaffolded for one-tap submit (no login)</li>
           <li><span class="ver">v0.3</span> "Submit to GitHub" primary action opens prefilled new-issue page in new tab · presenter auto-create kept as one-tap secondary
           <li><span class="ver">v0.2</span> Bloomberg-style terminal redesign · ticker, fkeys, command bar, SVG chart · auto-create issues via PAT</li>
           <li><span class="ver">v0.1</span> Baseline dashboard created</li>
@@ -188,7 +215,7 @@
     <span class="seg right"><span class="l">SYS</span> <span id="clock2">--:--:--</span></span>
   </div>
 
-  <script src="data.js?v=0.3.0"></script>
-  <script src="app.js?v=0.3.0"></script>
+  <script src="data.js?v=0.4.0"></script>
+  <script src="app.js?v=0.4.0"></script>
 </body>
 </html>
