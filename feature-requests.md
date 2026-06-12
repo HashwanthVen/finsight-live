@@ -1,9 +1,7 @@
 # Live Audience Requests
 
-This file is updated by the Cloudflare Worker (`worker/`) when the audience
-submits requests at <https://hashwanthven.github.io/finsight-live/requests.html>.
-Each new submission appends a row to the table below; the dashboard reads this
-file and renders the latest entries in the **Live Audience Requests** panel.
+This file lists audience requests for FinSight Live. The dashboard reads it
+and renders the latest rows in the **LIVE AUDIENCE REQUESTS** panel.
 
 Format: `When | Type | Title | Who`
 

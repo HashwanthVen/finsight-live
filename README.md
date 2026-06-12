@@ -39,10 +39,7 @@ after a deploy.
 | `app.js` | Dashboard behavior — ticker, clock, chart, filters, command bar, risk review, insight rotation |
 | `requests.js` | Request Center behavior — form, prefilled GitHub issue URL, mailto, optional PAT auto-create, local queue |
 | `data.js` | Mock/synthetic data for the dashboard |
-| `worker/worker.js` | Cloudflare Worker relay (optional, enables one-tap submit with no audience login) |
-| `worker/wrangler.toml` | Cloudflare Worker config |
-| `worker/README.md` | 3-command deploy guide for the Worker |
-| `feature-requests.md` | Live table of audience requests (appended by the Worker) |
+| `feature-requests.md` | Optional table of audience requests; the dashboard renders rows from this file in the LIVE AUDIENCE REQUESTS panel |
 | `.nojekyll` | Tells GitHub Pages to serve files as-is (no Jekyll processing) |
 | `.github/workflows/pages.yml` | Auto-deploys the repo root to GitHub Pages on push to `main` |
 | `.github/ISSUE_TEMPLATE/feature_request.yml` | Structured feature request form on GitHub |
@@ -99,40 +96,25 @@ Fields:
 2. **Tell us more** (description — optional)
 3. **Type** (Feature / Bug / UI polish / Idea)
 
-### Submit behavior (in order)
-1. **One-tap mode** — if a Cloudflare Worker URL is configured (see
-   `worker/README.md`), submit POSTs directly to the Worker. The audience
-   needs no GitHub account, no email, no login. The Worker:
-   - appends a row to `feature-requests.md` in the repo
-   - creates a GitHub issue
-   - returns the issue URL to the page
-2. **Default mode** — if no Worker is configured, submit opens GitHub's
-   prefilled new-issue page in a new tab. The audience taps **"Submit new
-   issue"** there to post it (requires a free GitHub account).
+### Submit behavior
+Tapping **▶ SUBMIT** opens GitHub's prefilled new-issue page in a new
+tab. The audience taps **"Submit new issue"** there to post it.
+Requires a free GitHub account (one tap if they have the GitHub mobile app).
 
 ### Live Audience Requests panel
 The dashboard reads `feature-requests.md` and renders the latest rows in a
 **LIVE AUDIENCE REQUESTS** panel that auto-refreshes every 30 seconds.
-When a submission comes in, the panel updates on the next refresh (or
-push **↻ REFRESH**) — no full reload required.
+After a submission shows up as an issue, append a row to
+`feature-requests.md` to surface it in the dashboard panel (or wire that up
+later with whatever automation you prefer).
 
 ### Repo configuration
-`requests.js`:
+At the top of `requests.js`:
 
 ```js
 const GITHUB_OWNER = "HashwanthVen";
 const GITHUB_REPO  = "finsight-live";
-// Hard-code this once you've deployed the Worker:
-const WORKER_URL_DEFAULT = "";
 ```
-
-### Cloudflare Worker (optional, 10-min setup for one-tap submit)
-See [`worker/README.md`](worker/README.md). You'll need:
-- a free Cloudflare account (email only, no credit card)
-- `npm i -g wrangler`
-- a fine-grained PAT with **Contents: R/W + Issues: R/W** on `finsight-live`
-- 3 commands: `wrangler login` → `wrangler secret put GH_TOKEN` →
-  `wrangler deploy`
 
 ---
 

@@ -1,26 +1,17 @@
-/* FinSight Live — Request Center (v0.4, simplified)
+/* FinSight Live — Request Center (v0.4.1, simplified)
    - 3-field mobile-first form
-   - Submit behavior, in order of preference:
-       1. Cloudflare Worker (true one-tap, no audience login) if WORKER_URL set
-       2. Prefilled GitHub new-issue page (works for anyone with a GH account)
-   - Reads feature-requests.md to show a live "audience requests" feed */
+   - Submit opens the prefilled GitHub new-issue page in a new tab.
+     Audience needs a free GitHub account to post.
+   - Reads feature-requests.md to show a live "audience requests" feed. */
 (function () {
   "use strict";
 
   // ---- CONFIG -----------------------------------------------------------------
   const GITHUB_OWNER = "HashwanthVen";
   const GITHUB_REPO  = "finsight-live";
-  // Hard-code the Worker URL here once you deploy worker/ (see worker/README.md):
-  //   const WORKER_URL = "https://finsight-relay.your-subdomain.workers.dev";
-  const WORKER_URL_DEFAULT = "";
-  const WORKER_KEY = "finsight.worker_url.v1";
   // -----------------------------------------------------------------------------
 
   function $(id) { return document.getElementById(id); }
-  function workerUrl() {
-    try { return (localStorage.getItem(WORKER_KEY) || WORKER_URL_DEFAULT || "").trim(); }
-    catch (e) { return WORKER_URL_DEFAULT; }
-  }
 
   /* ---------- TICKER (slim, mobile) ---------- */
   function renderTicker() {
@@ -64,28 +55,20 @@
     }
   }
 
-  // Parse the markdown table in feature-requests.md. We expect columns:
-  // | When | Type | Title | Who |
+  // Parse the markdown table in feature-requests.md.
   function parseRequestsTable(md) {
     const lines = md.split(/\r?\n/);
     const out = [];
-    let inTable = false, headerSeen = false;
+    let headerSeen = false;
     for (const ln of lines) {
-      if (!ln.trim().startsWith("|")) { inTable = false; headerSeen = false; continue; }
-      if (/^\|\s*-+/.test(ln)) { inTable = true; headerSeen = true; continue; }
+      if (!ln.trim().startsWith("|")) { headerSeen = false; continue; }
+      if (/^\|\s*-+/.test(ln)) { headerSeen = true; continue; }
       if (!headerSeen) continue;
-      if (!inTable) continue;
-      // skip header line(s) until separator passed
       const cells = ln.split("|").slice(1, -1).map((c) => c.trim());
       if (cells.length < 3) continue;
-      out.push({
-        when:  cells[0] || "",
-        type:  cells[1] || "",
-        title: cells[2] || "",
-        who:   cells[3] || ""
-      });
+      out.push({ when: cells[0], type: cells[1], title: cells[2], who: cells[3] || "" });
     }
-    return out.reverse(); // newest first
+    return out.reverse();
   }
 
   /* ---------- SUBMIT ---------- */
@@ -114,7 +97,7 @@
     return `${base}?${params.toString()}`;
   }
 
-  async function submit(e) {
+  function submit(e) {
     e.preventDefault();
     const form = {
       title:       $("f-title").value.trim(),
@@ -123,87 +106,19 @@
     };
     if (!form.title) { showResult("Please enter a title.", "err"); return; }
 
-    const btn = $("btn-submit");
-    btn.disabled = true; btn.textContent = "▶ SUBMITTING…";
-
-    const url = workerUrl();
-    if (url) {
-      // Worker path — true one-tap, no login
-      try {
-        const res = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form)
-        });
-        if (!res.ok) {
-          const txt = await res.text().catch(() => "");
-          throw new Error(`Worker ${res.status}: ${txt.slice(0, 140)}`);
-        }
-        const data = await res.json().catch(() => ({}));
-        const link = data.issue_url
-          ? ` <a href="${esc(data.issue_url)}" target="_blank" rel="noopener">View issue ↗</a>`
-          : "";
-        showResult(`✓ Submitted! It will appear on the dashboard shortly.${link}`, "good");
-        clearForm();
-        setTimeout(loadFeed, 2000);
-      } catch (err) {
-        showResult(`✗ ${err.message}. Falling back to GitHub…`, "err");
-        setTimeout(() => window.open(buildIssueUrl(form), "_blank", "noopener"), 800);
-      } finally {
-        btn.disabled = false; btn.textContent = "▶ SUBMIT";
-      }
-      return;
-    }
-
-    // Fallback: open prefilled GitHub new-issue page
     const ghUrl = buildIssueUrl(form);
     window.open(ghUrl, "_blank", "noopener");
-    showResult(`Opened GitHub — tap <b>"Submit new issue"</b> there to post it. Requires a free GitHub account.`, "good");
-    btn.disabled = false; btn.textContent = "▶ SUBMIT";
+    showResult(
+      `Opened GitHub — tap <b>"Submit new issue"</b> there to post it. Requires a free GitHub account.`,
+      "good"
+    );
   }
 
-  function clearForm() {
-    $("f-title").value = "";
-    $("f-desc").value = "";
-    $("f-type").selectedIndex = 0;
-  }
   function showResult(msg, kind) {
     const el = $("result");
     el.className = "submit-result show " + (kind || "");
     el.innerHTML = msg;
     setTimeout(() => { el.classList.remove("show"); }, 9000);
-  }
-
-  /* ---------- PRESENTER DRAWER ---------- */
-  function refreshMode() {
-    const u = workerUrl();
-    const badge = $("mode-badge");
-    const text  = $("mode-text");
-    if (u) {
-      badge.textContent = "ONE-TAP MODE";
-      badge.className = "badge good";
-      text.textContent = `posts to ${u.replace(/^https?:\/\//, "")}`;
-    } else {
-      badge.textContent = "DEFAULT MODE";
-      badge.className = "badge dim";
-      text.textContent = "opens prefilled GitHub issue";
-    }
-    $("worker-url").value = u;
-  }
-  function bindDrawer() {
-    $("btn-worker-save").addEventListener("click", () => {
-      const v = $("worker-url").value.trim();
-      try {
-        if (v) localStorage.setItem(WORKER_KEY, v);
-        else localStorage.removeItem(WORKER_KEY);
-      } catch (e) {}
-      refreshMode();
-      showResult(v ? "✓ Worker URL saved on this device." : "Worker URL cleared.", "good");
-    });
-    $("btn-worker-clear").addEventListener("click", () => {
-      try { localStorage.removeItem(WORKER_KEY); } catch (e) {}
-      refreshMode();
-    });
   }
 
   /* ---------- UTILS ---------- */
@@ -217,8 +132,6 @@
   document.addEventListener("DOMContentLoaded", () => {
     renderTicker();
     loadFeed();
-    refreshMode();
-    bindDrawer();
     $("req-form").addEventListener("submit", submit);
   });
 })();

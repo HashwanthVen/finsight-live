@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>FINSIGHT LIVE · NEW REQUEST</title>
   <meta name="description" content="Submit a feature idea or bug — no login needed." />
-  <link rel="stylesheet" href="styles.css?v=0.4.0" />
+  <link rel="stylesheet" href="styles.css?v=0.4.1" />
   <style>
     /* page-scoped tweaks so it's truly mobile-first */
     body { background: var(--bg); }
@@ -90,25 +90,8 @@
     }
 
     .presenter-drawer summary {
-      cursor: pointer;
-      color: var(--dim);
-      font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
-      padding: 8px 0;
-      outline: none;
+      display: none;
     }
-    .presenter-drawer summary:hover { color: var(--amber); }
-    .presenter-drawer summary::-webkit-details-marker { color: var(--amber); }
-    .presenter-drawer .drawer-body {
-      background: var(--panel); border: 1px solid var(--border);
-      padding: 14px 16px; margin-top: 8px;
-      font-size: 12px; color: var(--text);
-    }
-    .presenter-drawer .row { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
-    .presenter-drawer .row .input { flex: 1; min-width: 200px; }
-    .presenter-drawer code {
-      color: var(--amber); background: var(--bg); padding: 1px 5px; border: 1px solid var(--border);
-    }
-    .presenter-drawer p { margin: 8px 0; color: var(--dim); font-size: 11px; line-height: 1.6; }
     .badge {
       display: inline-block; font-size: 10px; padding: 2px 8px;
       letter-spacing: 1px; border: 1px solid;
@@ -184,36 +167,9 @@
       <h3 id="feed-title">LIVE AUDIENCE REQUESTS</h3>
       <div id="feed"><div class="feed-empty">Loading…</div></div>
     </section>
-
-    <!-- PRESENTER DRAWER (hidden by default) -->
-    <details class="presenter-drawer">
-      <summary>⚙ PRESENTER OPTIONS</summary>
-      <div class="drawer-body">
-        <p>
-          <span class="badge dim" id="mode-badge">DEFAULT MODE</span>
-          Current submit behavior: <b id="mode-text">opens prefilled GitHub issue</b>.
-        </p>
-        <p>
-          <b>Upgrade to one-tap (no audience login):</b> deploy the included Cloudflare Worker
-          (see <code>worker/README.md</code> in the repo). Then paste the deployed URL below.
-          That switches submit to a single API call — audience just taps and a row appears in
-          <code>feature-requests.md</code>.
-        </p>
-        <div class="row">
-          <input id="worker-url" class="input" type="url"
-                 placeholder="https://finsight-relay.your-subdomain.workers.dev" />
-          <button class="btn" id="btn-worker-save">SAVE</button>
-          <button class="btn" id="btn-worker-clear">CLEAR</button>
-        </div>
-        <p>
-          The Worker URL is stored only in <code>localStorage</code> on this device.
-          You can also hard-code it in <code>requests.js</code> (the <code>WORKER_URL</code> constant) for everyone.
-        </p>
-      </div>
-    </details>
   </div>
 
-  <script src="data.js?v=0.4.0"></script>
-  <script src="requests.js?v=0.4.0"></script>
+  <script src="data.js?v=0.4.1"></script>
+  <script src="requests.js?v=0.4.1"></script>
 </body>
 </html>
