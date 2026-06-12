@@ -4,6 +4,43 @@
   const D = window.FINSIGHT_DATA;
   if (!D) { console.error("FinSight: data not loaded"); return; }
 
+  /* ---------- THEME TOGGLE ---------- */
+  const THEME_KEY = "finsight.theme";
+  let currentTheme = localStorage.getItem(THEME_KEY) || "dark";
+
+  function applyTheme(theme) {
+    currentTheme = theme;
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem(THEME_KEY, theme);
+    updateThemeButton();
+  }
+
+  function updateThemeButton() {
+    const btn = $("theme-toggle");
+    if (!btn) return;
+    // When dark, show "◑ LIGHT" (click to go light)
+    // When light, show "◐ DARK" (click to go dark)
+    if (currentTheme === "dark") {
+      btn.textContent = "◑ LIGHT";
+      btn.setAttribute("aria-label", "Switch to light theme");
+    } else {
+      btn.textContent = "◐ DARK";
+      btn.setAttribute("aria-label", "Switch to dark theme");
+    }
+  }
+
+  function toggleTheme() {
+    const newTheme = currentTheme === "dark" ? "light" : "dark";
+    applyTheme(newTheme);
+  }
+
+  function bindThemeToggle() {
+    const btn = $("theme-toggle");
+    if (!btn) return;
+    btn.addEventListener("click", toggleTheme);
+    updateThemeButton();
+  }
+
   /* ---------- TICKER ---------- */
   function renderTicker() {
     const track = $("ticker-track");
@@ -245,7 +282,12 @@
   }
   function runCommand(cmd) {
     if (cmd === "HELP") {
-      flash("CMDS: GO DASH | GO KPIS | GO TREND | GO REGIONS | GO PRODUCTS | GO RISKS | GO INSIGHTS | GO REQUESTS | TREND REV/MGN/PIPE | ROTATE");
+      flash("CMDS: GO DASH | GO KPIS | GO TREND | GO REGIONS | GO PRODUCTS | GO RISKS | GO INSIGHTS | GO REQUESTS | TREND REV/MGN/PIPE | ROTATE | THEME");
+      return;
+    }
+    if (cmd === "THEME") {
+      toggleTheme();
+      flash(`THEME SWITCHED TO ${currentTheme.toUpperCase()}`);
       return;
     }
     if (cmd === "GO REQUESTS" || cmd === "REQS") {
@@ -349,6 +391,7 @@
 
   /* ---------- INIT ---------- */
   document.addEventListener("DOMContentLoaded", () => {
+    bindThemeToggle();
     renderTicker();
     tickClock(); setInterval(tickClock, 1000);
     renderKpis();
