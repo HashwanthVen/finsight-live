@@ -2,13 +2,13 @@
    All values are illustrative for demo purposes only. */
 window.FINSIGHT_DATA = {
   kpis: [
-    { label: "Revenue",           value: "$48.2M",  delta: "+12.4%",        direction: "up",   tone: "good", note: "Above plan for the period." },
-    { label: "Gross Margin",      value: "63.8%",   delta: "-1.7 pts",      direction: "down", tone: "warn", note: "Pressure in select segments." },
-    { label: "Pipeline",          value: "$126.5M", delta: "+8.9%",         direction: "up",   tone: "info", note: "Healthy coverage vs. quota." },
-    { label: "Forecast Accuracy", value: "91.2%",   delta: "+3.1 pts",      direction: "up",   tone: "good", note: "Improved vs. prior quarter." },
-    { label: "Operating Cost",    value: "$18.4M",  delta: "+4.2%",         direction: "up",   tone: "warn", note: "Cloud infra trending up." },
-    { label: "Risk Score",        value: "MED",     delta: "6 active",      direction: "flat", tone: "warn", note: "Reviewed weekly." },
-    { label: "Forecast Variance", value: "+2.4%",   delta: "vs plan",       direction: "up",   tone: "good", note: "Tracking ahead of FY26 plan." }
+    { label: "Revenue",           value: "$48.2M",  delta: "+12.4%",        direction: "up",   tone: "good", note: "Above plan for the period.", spark: [31.2, 33.1, 34.5, 38.8, 42.3, 48.2] },
+    { label: "Gross Margin",      value: "63.8%",   delta: "-1.7 pts",      direction: "down", tone: "warn", note: "Pressure in select segments.", spark: [62.1, 62.4, 63.0, 63.5, 63.7, 63.8] },
+    { label: "Pipeline",          value: "$126.5M", delta: "+8.9%",         direction: "up",   tone: "info", note: "Healthy coverage vs. quota.", spark: [98.0, 104.2, 110.5, 116.3, 121.4, 126.5] },
+    { label: "Forecast Accuracy", value: "91.2%",   delta: "+3.1 pts",      direction: "up",   tone: "good", note: "Improved vs. prior quarter.", spark: [84.8, 86.9, 87.6, 88.7, 90.1, 91.2] },
+    { label: "Operating Cost",    value: "$18.4M",  delta: "+4.2%",         direction: "up",   tone: "warn", note: "Cloud infra trending up.", spark: [16.5, 16.9, 17.2, 17.6, 18.0, 18.4] },
+    { label: "Risk Score",        value: "MED",     delta: "6 active",      direction: "flat", tone: "warn", note: "Reviewed weekly.", spark: [8, 7, 7, 6, 6, 6] },
+    { label: "Forecast Variance", value: "+2.4%",   delta: "vs plan",       direction: "up",   tone: "good", note: "Tracking ahead of FY26 plan.", spark: [-1.1, -0.6, 0.2, 0.9, 1.7, 2.4] }
   ],
 
   trend: {

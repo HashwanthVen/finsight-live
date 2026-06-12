@@ -80,6 +80,7 @@
           <div class="k-value">${escapeHtml(k.value)}</div>
           <div class="k-delta ${k.direction}">${arrow} ${escapeHtml(k.delta)}</div>
           <div class="k-note">${escapeHtml(k.note)}</div>
+          ${renderSparkline(k.spark, k.tone)}
         </div>`;
     }).join("");
     const stamp = $("kpi-stamp");
@@ -87,6 +88,34 @@
       const d = new Date();
       stamp.textContent = "LAST UPD " + d.toISOString().slice(11, 19) + "Z";
     }
+  }
+
+  function renderSparkline(values, tone) {
+    if (!Array.isArray(values) || values.length < 2) return "";
+    const safeTone = ["good", "warn", "info", "bad"].includes(tone) ? tone : "info";
+    const nums = values.map(Number).filter((v) => Number.isFinite(v));
+    if (nums.length < 2) return "";
+    const W = 100, H = 28, PAD = 2;
+    const max = Math.max(...nums);
+    const min = Math.min(...nums);
+    const range = max - min || 1;
+    const points = nums.map((v, i) => {
+      const x = PAD + (i / (nums.length - 1)) * (W - PAD * 2);
+      const y = PAD + (H - PAD * 2) - ((v - min) / range) * (H - PAD * 2);
+      return { x, y };
+    });
+    const pointList = points.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+    const areaPoints = `${PAD},${H - PAD} ${pointList} ${W - PAD},${H - PAD}`;
+    const last = points[points.length - 1];
+    const length = points.slice(1).reduce((sum, p, i) => {
+      const prev = points[i];
+      return sum + Math.hypot(p.x - prev.x, p.y - prev.y);
+    }, 0).toFixed(1);
+    return `<svg class="kpi-spark ${safeTone}" viewBox="0 0 100 28" width="100%" height="28" preserveAspectRatio="none" aria-hidden="true">
+      <polygon class="spark-area" points="${areaPoints}"></polygon>
+      <polyline class="spark-line" points="${pointList}" stroke-dasharray="${length}" stroke-dashoffset="${length}"></polyline>
+      <circle class="spark-dot" cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="2"></circle>
+    </svg>`;
   }
 
   /* ---------- SVG LINE CHART ---------- */
@@ -472,6 +501,83 @@
     scheduleKpi();
   }
 
+  /* ---------- KPI COUNT-UP (issue #8) ---------- */
+  function parseNumeric(text) {
+    const raw = String(text == null ? "" : text);
+    const match = raw.match(/^(.*?)([+-]?\d+(?:\.\d+)?)(.*)$/);
+    if (!match) return null;
+    return {
+      original: raw,
+      prefix: match[1],
+      numeric: match[2],
+      suffix: match[3],
+      target: parseFloat(match[2]),
+      precision: (match[2].split(".")[1] || "").length
+    };
+  }
+
+  function easeOutCubic(t) {
+    return 1 - Math.pow(1 - t, 3);
+  }
+
+  function formatCountUpNumber(value, parsed) {
+    const formatted = Math.abs(value).toFixed(parsed.precision);
+    if (parsed.numeric.charAt(0) === "+") return "+" + formatted;
+    if (value < 0) return "-" + formatted;
+    return formatted;
+  }
+
+  function fadeInKpiValue(el) {
+    el.style.opacity = "0";
+    el.style.transition = "opacity 350ms ease";
+    requestAnimationFrame(() => {
+      el.style.opacity = "1";
+    });
+  }
+
+  function animateKpiValue(el, delay) {
+    if (!el) return;
+    const parsed = parseNumeric(el.textContent);
+    if (!parsed || isNaN(parsed.target)) {
+      fadeInKpiValue(el);
+      return;
+    }
+
+    const duration = 900;
+    const start = performance.now() + delay;
+
+    function step(now) {
+      if (now < start) {
+        requestAnimationFrame(step);
+        return;
+      }
+
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = easeOutCubic(progress);
+      const value = parsed.target * eased;
+      el.textContent = parsed.prefix + formatCountUpNumber(value, parsed) + parsed.suffix;
+
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      } else {
+        el.textContent = parsed.original;
+      }
+    }
+
+    requestAnimationFrame(step);
+  }
+
+  function countUpKpis() {
+    if (prefersReducedMotion()) return;
+
+    document.querySelectorAll("#kpi-grid .kpi").forEach((tile) => {
+      if (tile.getAttribute("data-animated") === "1") return;
+      tile.setAttribute("data-animated", "1");
+      animateKpiValue(tile.querySelector(".k-value"), 0);
+      animateKpiValue(tile.querySelector(".k-delta"), 150);
+    });
+  }
+
   /* ---------- UTILS ---------- */
   function $(id) { return document.getElementById(id); }
   function escapeHtml(s) {
@@ -486,6 +592,7 @@
     renderTicker();
     tickClock(); setInterval(tickClock, 1000);
     renderKpis();
+    countUpKpis();
     renderChart(currentSeries);
     bindToggle();
     renderRegions(D.regions);

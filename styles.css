@@ -673,13 +673,53 @@ select option { background: var(--bg); color: var(--white); }
   100% { background: transparent;  color: var(--amber); box-shadow: none;                 }
 }
 
+/* KPI SPARKLINES */
+.kpi-spark {
+  display: block;
+  width: 100%;
+  height: 28px;
+  margin-top: 8px;
+  overflow: visible;
+}
+.kpi-spark .spark-area {
+  stroke: none;
+}
+.kpi-spark .spark-line {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: kpiSparkDraw 400ms ease-out forwards;
+}
+.kpi-spark .spark-dot {
+  stroke: var(--panel);
+  stroke-width: 1;
+}
+.kpi-spark.good .spark-line { stroke: var(--green); }
+.kpi-spark.warn .spark-line { stroke: var(--amber); }
+.kpi-spark.info .spark-line { stroke: var(--cyan); }
+.kpi-spark.bad .spark-line  { stroke: var(--red); }
+.kpi-spark.good .spark-dot { fill: var(--green); }
+.kpi-spark.warn .spark-dot { fill: var(--amber); }
+.kpi-spark.info .spark-dot { fill: var(--cyan); }
+.kpi-spark.bad .spark-dot  { fill: var(--red); }
+.kpi-spark.good .spark-area { fill: rgba(0,230,118,0.10); }
+.kpi-spark.warn .spark-area { fill: rgba(255,156,0,0.10); }
+.kpi-spark.info .spark-area { fill: rgba(69,208,255,0.10); }
+.kpi-spark.bad .spark-area  { fill: rgba(255,82,82,0.10); }
+@keyframes kpiSparkDraw {
+  to { stroke-dashoffset: 0; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .terminal-bar .brand .dot,
   .ticker-track,
   .ticker-item.flash .val,
-  .kpi .k-label .badge.flash {
+  .kpi .k-label .badge.flash,
+  .kpi-spark .spark-line {
     animation: none !important;
   }
+  .kpi-spark .spark-line { stroke-dashoffset: 0 !important; }
   .ticker-item.flash .val { background: transparent; }
   .kpi .k-label .badge.flash { background: transparent; color: var(--amber); box-shadow: none; }
 }
