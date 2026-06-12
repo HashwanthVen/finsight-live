@@ -7,7 +7,8 @@ window.FINSIGHT_DATA = {
     { label: "Pipeline",          value: "$126.5M", delta: "+8.9%",         direction: "up",   tone: "info", note: "Healthy coverage vs. quota." },
     { label: "Forecast Accuracy", value: "91.2%",   delta: "+3.1 pts",      direction: "up",   tone: "good", note: "Improved vs. prior quarter." },
     { label: "Operating Cost",    value: "$18.4M",  delta: "+4.2%",         direction: "up",   tone: "warn", note: "Cloud infra trending up." },
-    { label: "Risk Score",        value: "MED",     delta: "6 active",      direction: "flat", tone: "warn", note: "Reviewed weekly." }
+    { label: "Risk Score",        value: "MED",     delta: "6 active",      direction: "flat", tone: "warn", note: "Reviewed weekly." },
+    { label: "Forecast Variance", value: "+2.4%",   delta: "vs plan",       direction: "up",   tone: "good", note: "Tracking ahead of FY26 plan." }
   ],
 
   trend: {

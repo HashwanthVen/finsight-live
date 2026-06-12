@@ -1,11 +1,12 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FINSIGHT LIVE · TERMINAL</title>
   <meta name="description" content="FinSight Live — Bloomberg-style executive terminal for live AI-assisted feature demos. Synthetic data only." />
-  <link rel="stylesheet" href="styles.css?v=0.4.2" />
+  <script>(function(){try{var t=localStorage.getItem('finsight.theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+  <link rel="stylesheet" href="styles.css?v=0.5.0" />
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to main content</a>
@@ -22,6 +23,7 @@
       <span>FINSIGHT&nbsp;LIVE</span>
       <span class="sub">EXEC FINANCE TERMINAL · FY26</span>
     </div>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle light/dark theme" title="Toggle theme">◐ THEME</button>
     <div class="clock"><span class="lbl">SYS</span><span id="clock">--:--:--</span></div>
   </div>
 
@@ -66,7 +68,7 @@
     <section id="dashboard" class="panel" aria-labelledby="kpi-title">
       <div class="panel-head">
         <span class="title" id="kpi-title">KPI DESK</span>
-        <span class="sub">SNAPSHOT · 6 METRICS</span>
+        <span class="sub">SNAPSHOT · 7 METRICS</span>
         <span class="right muted" id="kpi-stamp"></span>
       </div>
       <div id="kpi-grid" class="kpi-grid" aria-live="polite"></div>
@@ -198,6 +200,8 @@
       </div>
       <div class="panel-body">
         <ul class="rel-list">
+          <li><span class="ver">v0.5</span> Theme toggle in top bar · light / dark · persisted to localStorage · THEME command</li>
+          <li><span class="ver">v0.5</span> Added Forecast Variance KPI tile (7th metric) — variance vs FY26 plan</li>
           <li><span class="ver">v0.4</span> Simple 3-field mobile-first form · LIVE AUDIENCE REQUESTS panel reads GitHub Issues directly via REST API, auto-refresh 30s</li>
           <li><span class="ver">v0.3</span> "Submit to GitHub" primary action opens prefilled new-issue page in new tab · presenter auto-create kept as one-tap secondary
           <li><span class="ver">v0.2</span> Bloomberg-style terminal redesign · ticker, fkeys, command bar, SVG chart · auto-create issues via PAT</li>
@@ -217,7 +221,7 @@
     <span class="seg right"><span class="l">SYS</span> <span id="clock2">--:--:--</span></span>
   </div>
 
-  <script src="data.js?v=0.4.2"></script>
-  <script src="app.js?v=0.4.2"></script>
+  <script src="data.js?v=0.5.0"></script>
+  <script src="app.js?v=0.5.0"></script>
 </body>
 </html>
