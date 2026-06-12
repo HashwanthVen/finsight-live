@@ -280,44 +280,63 @@
     setTimeout(() => t.remove(), 2400);
   }
 
-  /* ---------- AUDIENCE REQUESTS (feature-requests.md) ---------- */
+  /* ---------- AUDIENCE REQUESTS (live from GitHub Issues API) ---------- */
+  const GH_OWNER = "HashwanthVen";
+  const GH_REPO  = "finsight-live";
   async function loadAudience() {
     const tbody = $("aud-tbody");
+    const stamp = $("aud-stamp");
     if (!tbody) return;
     try {
-      const res = await fetch("feature-requests.md?cb=" + Date.now());
+      // Public repo, unauthenticated read of recent issues (open + closed).
+      // Filter out PRs (issues endpoint returns both); cap to 25 newest.
+      const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/issues?state=all&per_page=30&sort=created&direction=desc&_=${Date.now()}`;
+      const res = await fetch(url, { headers: { "Accept": "application/vnd.github+json" } });
       if (!res.ok) throw new Error("HTTP " + res.status);
-      const text = await res.text();
-      const rows = parseRequestsTable(text);
-      if (rows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--dim);padding:18px;">NO REQUESTS YET — TAP "+ NEW REQUEST"</td></tr>`;
+      const data = await res.json();
+      const issues = data.filter((i) => !i.pull_request);
+      if (issues.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--dim);padding:18px;">NO REQUESTS YET — TAP "+ NEW REQUEST"</td></tr>`;
         return;
       }
-      tbody.innerHTML = rows.slice(0, 25).map((r) => `
-        <tr>
-          <td>${escapeHtml(r.when)}</td>
-          <td><span class="status-pill watch">${escapeHtml(r.type || "REQ")}</span></td>
-          <td><b class="amber">${escapeHtml(r.title)}</b></td>
-          <td>${escapeHtml(r.who || "anon")}</td>
-        </tr>
-      `).join("");
+      tbody.innerHTML = issues.slice(0, 25).map((i) => {
+        const when = formatWhen(i.created_at);
+        const stateCls = i.state === "closed" ? "on-track" : "watch";
+        const type = extractType(i.title);
+        const cleanTitle = i.title.replace(/^\[[^\]]+\]\s*/, "");
+        const labels = (i.labels || []).filter((l) => l.name && l.name !== "demo-request" && !/^(feature|bug|ui-polish|idea|enhancement)$/i.test(l.name)).slice(0, 2).map((l) => `<span class="status-pill watch" style="margin-left:4px;">${escapeHtml(l.name)}</span>`).join("");
+        return `
+          <tr>
+            <td>${escapeHtml(when)}</td>
+            <td><span class="status-pill watch">${escapeHtml(type)}</span></td>
+            <td><a href="${escapeHtml(i.html_url)}" target="_blank" rel="noopener"><b class="amber">${escapeHtml(cleanTitle)}</b></a>${labels}</td>
+            <td>${escapeHtml(i.user && i.user.login ? "@" + i.user.login : "anon")}</td>
+            <td><span class="status-pill ${stateCls}">${escapeHtml(i.state)}</span> <span class="muted">#${i.number}</span></td>
+          </tr>`;
+      }).join("");
+      if (stamp) {
+        const d = new Date();
+        stamp.textContent = "UPDATED " + d.toTimeString().slice(0, 8);
+      }
     } catch (e) {
-      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--dim);padding:18px;">FEED UNAVAILABLE</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--dim);padding:18px;">FEED UNAVAILABLE (${escapeHtml(e.message)})</td></tr>`;
     }
   }
-  function parseRequestsTable(md) {
-    const lines = md.split(/\r?\n/);
-    const out = [];
-    let headerSeen = false;
-    for (const ln of lines) {
-      if (!ln.trim().startsWith("|")) { headerSeen = false; continue; }
-      if (/^\|\s*-+/.test(ln)) { headerSeen = true; continue; }
-      if (!headerSeen) continue;
-      const cells = ln.split("|").slice(1, -1).map((c) => c.trim());
-      if (cells.length < 3) continue;
-      out.push({ when: cells[0], type: cells[1], title: cells[2], who: cells[3] || "" });
-    }
-    return out.reverse();
+  function extractType(title) {
+    const m = title.match(/^\[([^\]]+)\]/);
+    return m ? m[1].toUpperCase() : "REQ";
+  }
+  function formatWhen(iso) {
+    try {
+      const d = new Date(iso);
+      const now = Date.now();
+      const diffMin = Math.round((now - d.getTime()) / 60000);
+      if (diffMin < 1) return "just now";
+      if (diffMin < 60) return diffMin + "m ago";
+      const diffHr = Math.round(diffMin / 60);
+      if (diffHr < 24) return diffHr + "h ago";
+      return d.toLocaleDateString() + " " + d.toTimeString().slice(0, 5);
+    } catch (e) { return iso; }
   }
 
   /* ---------- UTILS ---------- */

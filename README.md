@@ -39,7 +39,6 @@ after a deploy.
 | `app.js` | Dashboard behavior — ticker, clock, chart, filters, command bar, risk review, insight rotation |
 | `requests.js` | Request Center behavior — form, prefilled GitHub issue URL, mailto, optional PAT auto-create, local queue |
 | `data.js` | Mock/synthetic data for the dashboard |
-| `feature-requests.md` | Optional table of audience requests; the dashboard renders rows from this file in the LIVE AUDIENCE REQUESTS panel |
 | `.nojekyll` | Tells GitHub Pages to serve files as-is (no Jekyll processing) |
 | `.github/workflows/pages.yml` | Auto-deploys the repo root to GitHub Pages on push to `main` |
 | `.github/ISSUE_TEMPLATE/feature_request.yml` | Structured feature request form on GitHub |
@@ -102,11 +101,11 @@ tab. The audience taps **"Submit new issue"** there to post it.
 Requires a free GitHub account (one tap if they have the GitHub mobile app).
 
 ### Live Audience Requests panel
-The dashboard reads `feature-requests.md` and renders the latest rows in a
-**LIVE AUDIENCE REQUESTS** panel that auto-refreshes every 30 seconds.
-After a submission shows up as an issue, append a row to
-`feature-requests.md` to surface it in the dashboard panel (or wire that up
-later with whatever automation you prefer).
+The dashboard reads **GitHub Issues directly** from the public REST API and
+renders the latest ones in a **LIVE AUDIENCE REQUESTS** panel that
+auto-refreshes every 30 seconds. As soon as an audience-submitted issue
+appears in the repo, it shows up on the dashboard — no manual file edits,
+no extra automation.
 
 ### Repo configuration
 At the top of `requests.js`:

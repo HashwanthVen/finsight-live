@@ -2,7 +2,7 @@
    - 3-field mobile-first form
    - Submit opens the prefilled GitHub new-issue page in a new tab.
      Audience needs a free GitHub account to post.
-   - Reads feature-requests.md to show a live "audience requests" feed. */
+   - Reads GitHub Issues directly to show a live "audience requests" feed. */
 (function () {
   "use strict";
 
@@ -29,46 +29,48 @@
     }).join("");
   }
 
-  /* ---------- FEED ---------- */
+  /* ---------- FEED (live from GitHub Issues) ---------- */
   async function loadFeed() {
     const feed = $("feed");
     if (!feed) return;
     try {
-      const res = await fetch("feature-requests.md?cb=" + Date.now());
+      const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/issues?state=all&per_page=20&sort=created&direction=desc&_=${Date.now()}`;
+      const res = await fetch(url, { headers: { "Accept": "application/vnd.github+json" } });
       if (!res.ok) throw new Error("HTTP " + res.status);
-      const text = await res.text();
-      const rows = parseRequestsTable(text);
-      if (rows.length === 0) {
+      const data = await res.json();
+      const issues = data.filter((i) => !i.pull_request).slice(0, 10);
+      if (issues.length === 0) {
         feed.innerHTML = `<div class="feed-empty">No requests yet. Be the first ▲</div>`;
         return;
       }
-      feed.innerHTML = `<ul>` + rows.slice(0, 12).map((r) => `
-        <li>
-          <span class="tag">${esc(r.type || "REQ")}</span>
-          <div>
-            <div>${esc(r.title)}</div>
-            <span class="feed-meta">${esc(r.when || "")}${r.who ? " · " + esc(r.who) : ""}</span>
-          </div>
-        </li>`).join("") + `</ul>`;
+      feed.innerHTML = `<ul>` + issues.map((i) => {
+        const type = (i.title.match(/^\[([^\]]+)\]/) || [, "REQ"])[1].toUpperCase();
+        const cleanTitle = i.title.replace(/^\[[^\]]+\]\s*/, "");
+        const when = formatWhen(i.created_at);
+        const who = i.user && i.user.login ? "@" + i.user.login : "anon";
+        return `
+          <li>
+            <span class="tag">${esc(type)}</span>
+            <div>
+              <div><a href="${esc(i.html_url)}" target="_blank" rel="noopener" style="color:var(--white);text-decoration:none;">${esc(cleanTitle)}</a></div>
+              <span class="feed-meta">${esc(when)} · ${esc(who)} · #${i.number}</span>
+            </div>
+          </li>`;
+      }).join("") + `</ul>`;
     } catch (e) {
       feed.innerHTML = `<div class="feed-empty">Feed unavailable.</div>`;
     }
   }
-
-  // Parse the markdown table in feature-requests.md.
-  function parseRequestsTable(md) {
-    const lines = md.split(/\r?\n/);
-    const out = [];
-    let headerSeen = false;
-    for (const ln of lines) {
-      if (!ln.trim().startsWith("|")) { headerSeen = false; continue; }
-      if (/^\|\s*-+/.test(ln)) { headerSeen = true; continue; }
-      if (!headerSeen) continue;
-      const cells = ln.split("|").slice(1, -1).map((c) => c.trim());
-      if (cells.length < 3) continue;
-      out.push({ when: cells[0], type: cells[1], title: cells[2], who: cells[3] || "" });
-    }
-    return out.reverse();
+  function formatWhen(iso) {
+    try {
+      const d = new Date(iso);
+      const diffMin = Math.round((Date.now() - d.getTime()) / 60000);
+      if (diffMin < 1) return "just now";
+      if (diffMin < 60) return diffMin + "m ago";
+      const diffHr = Math.round(diffMin / 60);
+      if (diffHr < 24) return diffHr + "h ago";
+      return d.toLocaleDateString();
+    } catch (e) { return iso; }
   }
 
   /* ---------- SUBMIT ---------- */
@@ -132,6 +134,7 @@
   document.addEventListener("DOMContentLoaded", () => {
     renderTicker();
     loadFeed();
+    setInterval(loadFeed, 30000);
     $("req-form").addEventListener("submit", submit);
   });
 })();
