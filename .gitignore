@@ -4,3 +4,8 @@ Thumbs.db
 .vscode/
 .idea/
 *.log
+
+# Local agent / session artifacts
+.local.db
+*.sqlite
+*.sqlite3
